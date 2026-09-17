@@ -19,7 +19,7 @@ export default function CredentialBanner() {
             </p>
             <p className="text-sm text-[#45464d]">
               Berdasarkan pemenuhan <span className="font-semibold text-[#191c1e]">{CREDENTIAL.complianceRate} kepatuhan P2H harian</span> tanpa
-              catatan anomali fatal selama 180 hari operasional (Periode Audit: 01 Mei – 31 Oktober 2024). Sesuai standar{" "}
+              catatan potensi risiko fatal selama 180 hari operasional (Periode Audit: 01 Mei – 31 Oktober 2024). Sesuai standar{" "}
               <span className="font-bold text-[#191c1e]">Kepmen No. 1827 K/30/MEM/2018 (Lampiran II K3 Armada)</span> dan{" "}
               <span className="font-bold text-[#191c1e]">SNI ISO 39001:2012</span> Keselamatan Lalu Lintas Jalan.
             </p>

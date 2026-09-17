@@ -259,7 +259,7 @@ export default function TelemetryPanel({ onFlagClick }: { onFlagClick: (logId: s
             </span>
           </div>
           <span className="rounded bg-[#ba1a1a]/10 px-2 py-0.5 text-[11px] font-bold text-[#ba1a1a]">
-            🔴 Bendera Anomali K3 &amp; LLAJ ({ANOMALY_FLAGS.length} Kejadian)
+            🔴 Bendera Potensi Risiko K3 &amp; LLAJ ({ANOMALY_FLAGS.length} Kejadian)
           </span>
         </div>
         <TelemetryChart data={liveData} visibleSeries={chartSeries} />

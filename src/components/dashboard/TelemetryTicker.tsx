@@ -25,7 +25,7 @@ export default function TelemetryTicker() {
           className="flex items-center gap-1 rounded-sm bg-[#dc2626] px-3 py-1 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
         >
           <img src="/dashboard/siren.svg" alt="" className="h-[14px] w-[16px]" />
-          <span className="text-[11px] font-bold uppercase tracking-wide text-white">Simulasikan Anomali Kritis</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide text-white">Simulasikan Potensi Risiko Kritis</span>
         </Link>
         <div className="flex items-center gap-1 border-l border-[#e0e3e5] pl-2">
           <img

@@ -9,7 +9,7 @@ export default function AnomalyLog({ expandedId, onToggle }: { expandedId: strin
             <img src="/kendaraan/warning-icon.svg" alt="" className="h-4 w-[18px]" />
           </span>
           <div>
-            <p className="text-lg font-bold leading-tight text-[#191c1e]">Log Anomali Gabungan (Alat Berat &amp; Angkutan Jalan)</p>
+            <p className="text-lg font-bold leading-tight text-[#191c1e]">Log Potensi Risiko Gabungan (Alat Berat &amp; Angkutan Jalan)</p>
             <p className="text-[11px] font-bold text-[#45464d]">Audit sensor telemetri in-line Sucofindo &amp; laporan visual inspektur</p>
           </div>
         </div>

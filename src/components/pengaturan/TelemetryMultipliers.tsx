@@ -17,7 +17,7 @@ export default function TelemetryMultipliers() {
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-lg font-semibold text-[#191c1e]">2. Pembobotan Sensitivitas Sensor (Multipliers)</h3>
-          <p className="text-xs text-[#45464d]">Kompensasi sensitivitas deteksi anomali AI &amp; telemetri CAN-Bus pada kategori ini.</p>
+          <p className="text-xs text-[#45464d]">Kompensasi sensitivitas deteksi potensi risiko AI &amp; telemetri CAN-Bus pada kategori ini.</p>
         </div>
         <img src="/pengaturan/info.svg" alt="" className="size-3.5" />
       </div>

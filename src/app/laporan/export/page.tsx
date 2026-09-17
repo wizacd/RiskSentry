@@ -22,7 +22,7 @@ function ExportLaporanContent() {
     doc.text(`Kendaraan: ${vehicleId}`, 14, 32);
     doc.text(`Health Index Score: ${result.score}/100`, 14, 40);
     doc.text(`Kepatuhan P2H: ${(result.p2hComplianceRate * 100).toFixed(0)}%`, 14, 48);
-    doc.text(`Anomali kritis: ${result.criticalAnomalyCount}`, 14, 56);
+    doc.text(`Potensi risiko kritis: ${result.criticalAnomalyCount}`, 14, 56);
     doc.text(`Fast-track: ${result.fastTrackEligible ? "Ya" : "Tidak"}`, 14, 64);
     doc.save(`compliance-passport-${vehicleId}.pdf`);
     setLoading(false);

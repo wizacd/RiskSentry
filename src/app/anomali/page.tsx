@@ -20,7 +20,7 @@ export default function AnomaliPage() {
 
   return (
     <main className="p-6">
-      <h1 className="mb-4 text-xl font-semibold">Daftar Anomali</h1>
+      <h1 className="mb-4 text-xl font-semibold">Daftar Potensi Risiko</h1>
       <ul className="space-y-2">
         {vehicles.map((v) => (
           <li key={v.id} className="rounded border bg-white p-3">
