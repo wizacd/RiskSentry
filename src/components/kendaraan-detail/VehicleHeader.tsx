@@ -1,6 +1,6 @@
 "use client";
 
-import { VEHICLE } from "./mockVehicleDetail";
+const OPERATIONAL_REGION = "PT Antam Tbk - Site Pomalaa";
 
 export default function VehicleHeader({
   sidebarOpen,
@@ -43,7 +43,7 @@ export default function VehicleHeader({
         <img src="/kendaraan/location-pin.svg" alt="" className="h-3 w-[13px]" />
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">Wilayah Operasional</p>
-          <p className="text-xs font-bold text-[#191c1e]">{VEHICLE.siteName}</p>
+          <p className="text-xs font-bold text-[#191c1e]">{OPERATIONAL_REGION}</p>
         </div>
       </div>
       <div className="ml-auto flex items-center gap-1 rounded-sm border border-[#c6c6cd] bg-[#f2f4f6] px-[9px] py-[5px]">

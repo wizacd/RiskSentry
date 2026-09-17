@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  ANOMALY_FLAGS,
-  METRICS,
-  TELEMETRY_DATA,
-  TIME_RANGES,
-  TONE_COLORS,
-  TimeRange,
-} from "./mockVehicleDetail";
+import { ANOMALY_FLAGS, METRICS, TELEMETRY_DATA, TIME_RANGES, TimeRange } from "./mockVehicleDetail";
+import { TONE_COLORS } from "./toneColors";
 import TelemetryChart from "./TelemetryChart";
 
 const ALAT_BERAT_PARAMS = [
@@ -26,7 +20,15 @@ const DARAT_PARAMS = [
   { id: "kampas_rem", label: "Kampas Rem & APAR Sensor", metricId: null as string | null },
 ];
 
-export default function TelemetryPanel({ onFlagClick }: { onFlagClick: (logId: string) => void }) {
+export default function TelemetryPanel({
+  onFlagClick,
+  unitCode = "DT-042",
+  categoryLabel = "Alat Berat",
+}: {
+  onFlagClick: (logId: string) => void;
+  unitCode?: string;
+  categoryLabel?: string;
+}) {
   const [timeRange, setTimeRange] = useState<TimeRange>("1 Jam");
   const [stream, setStream] = useState<"alat_berat" | "darat">("alat_berat");
   const [activeParams, setActiveParams] = useState<Set<string>>(new Set(ALAT_BERAT_PARAMS.map((p) => p.id)));
@@ -183,7 +185,7 @@ export default function TelemetryPanel({ onFlagClick }: { onFlagClick: (logId: s
           </div>
           {stream === "darat" && (
             <p className="rounded bg-[#f2f4f6] px-3 py-2 text-xs text-[#45464d]">
-              Unit {`DT-042`} terdaftar sebagai <strong>Alat Berat</strong> — stream sensor Transportasi Darat tidak tersedia untuk unit ini.
+              Unit {unitCode} terdaftar sebagai <strong>{categoryLabel}</strong> — stream sensor Transportasi Darat tidak tersedia untuk unit ini.
             </p>
           )}
         </div>

@@ -2,7 +2,7 @@
 // Person 1 & 2: import tipe dari sini, JANGAN duplikat definisi di komponen.
 // Kalau skema berubah, update file ini + migration di PR yang sama.
 
-export type FleetType = "logistik" | "bus_penumpang";
+export type FleetType = "bus" | "dumptruck" | "lv" | "excavator" | "tanker";
 export type RiskStatus = "aman" | "waspada" | "bahaya";
 export type P2HStatus = "hijau" | "kuning" | "merah";
 export type WorkOrderStatus = "terbuka" | "diproses" | "selesai";
@@ -41,12 +41,13 @@ export interface Driver {
   created_at: string;
 }
 
+export type ChecklistCondition = "ok" | "minor" | "rusak";
+
 export interface P2HChecklist {
-  rem: boolean;
-  ban: boolean;
-  lampu: boolean;
-  klakson: boolean;
-  kelengkapan_keselamatan: boolean;
+  rem: ChecklistCondition;
+  ban: ChecklistCondition;
+  lampu: ChecklistCondition;
+  klakson: ChecklistCondition;
 }
 
 export interface P2HRecord {
@@ -58,6 +59,7 @@ export interface P2HRecord {
   checklist: P2HChecklist;
   final_status: P2HStatus;
   notes: string | null;
+  surat_jalan_id: string | null;
   submitted_at: string;
 }
 
@@ -67,8 +69,11 @@ export interface WorkOrder {
   p2h_record_id: string | null;
   problem_component: string;
   ticket_status: WorkOrderStatus;
+  deadline_hours: number | null;
   created_at: string;
 }
+
+export type VibrationLevel = "normal" | "sedang" | "tinggi";
 
 export interface TelemetryLog {
   id: string;
@@ -78,11 +83,18 @@ export interface TelemetryLog {
   weather: Weather;
   continuous_driving_minutes: number;
   odol_indicator: boolean;
-  likelihood: number; // 1-5, prinsip HIRARC
-  severity: number; // 1-5, prinsip HIRARC
+  likelihood: number; // 1-5, proksi dari faktor "seberapa mungkin" hasil formula weighted
+  severity: number; // 1-5, proksi dari faktor "seberapa parah" hasil formula weighted
   risk_score: number;
   status: RiskStatus;
   recorded_at: string;
+  // Kolom sensor alat berat (migration 0004) — null untuk kendaraan_darat.
+  kemiringan_area: number | null;
+  beban_angkat_persen: number | null;
+  getaran_level: VibrationLevel | null;
+  suhu_komponen: number | null;
+  // Kolom sensor kendaraan darat — null untuk alat_berat.
+  persen_muatan: number | null;
 }
 
 export interface AppNotification {

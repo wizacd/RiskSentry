@@ -8,7 +8,7 @@ import { useSession } from "@/lib/auth/useSession";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Potensi Risiko & P2H", href: "/anomali" },
+  { label: "Potensi Risiko & P2H", href: "/potensi-resiko" },
   { label: "Notifikasi & Insiden", href: "/notifikasi" },
   { label: "Compliance Passport", href: "/compliance-passport/DT-042" },
   { label: "Detail Kendaraan / Telemetri", href: "/kendaraan/DT-042" },

@@ -9,9 +9,11 @@ import CredentialBanner from "@/components/compliance/CredentialBanner";
 import UnitIdentityCard from "@/components/compliance/UnitIdentityCard";
 import HealthIndexCard from "@/components/compliance/HealthIndexCard";
 import ComplianceTimeline from "@/components/compliance/ComplianceTimeline";
+import { useCompliancePassport } from "@/components/compliance/useCompliancePassport";
 
-export default function CompliancePassportPage() {
+export default function CompliancePassportPage({ params }: { params: { id: string } }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { data, loading, notFound } = useCompliancePassport(params.id);
 
   function scrollToTimeline() {
     document.getElementById("compliance-timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -24,15 +26,32 @@ export default function CompliancePassportPage() {
         <VehicleHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
         <main className="flex flex-1 flex-col gap-3 px-6 py-4">
           <TelemetryTicker />
-          <DocumentHeaderActionBar onCompare={scrollToTimeline} />
-          <CredentialBanner />
+          {loading ? (
+            <div className="rounded-lg bg-white p-10 text-center text-sm text-[#45464d] shadow-sm">
+              Memuat compliance passport dari Supabase...
+            </div>
+          ) : notFound || !data ? (
+            <div className="rounded-lg bg-white p-10 text-center shadow-sm">
+              <p className="text-lg font-bold text-[#191c1e]">Unit &quot;{params.id}&quot; Tidak Ditemukan</p>
+              <p className="mt-1 text-sm text-[#45464d]">Cek kembali kode unit — unit ini belum terdaftar di database.</p>
+            </div>
+          ) : (
+            <>
+              <DocumentHeaderActionBar onCompare={scrollToTimeline} />
+              <CredentialBanner vehicle={data.vehicle} healthIndex={data.healthIndex} p2hRecords={data.p2hRecords} />
 
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-            <UnitIdentityCard />
-            <HealthIndexCard />
-          </div>
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+                <UnitIdentityCard vehicle={data.vehicle} />
+                <HealthIndexCard healthIndex={data.healthIndex} />
+              </div>
 
-          <ComplianceTimeline />
+              <ComplianceTimeline
+                p2hRecords={data.p2hRecords}
+                notifications={data.notifications}
+                driverName={data.driver?.full_name ?? null}
+              />
+            </>
+          )}
         </main>
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e6e8ea] bg-[#f2f4f6] px-6 py-4 text-xs text-[#45464d]">
           <div className="flex flex-wrap items-center gap-3">

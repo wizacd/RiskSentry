@@ -1,12 +1,12 @@
-// Seed data — kendaraan awal (generic, demo lama) + armada mining/darat dengan
-// narasi lengkap (temuan legalitas, checklist fisik) yang dipakai Dashboard &
-// Anomali versi Figma. Skor risiko & status TIDAK di-hardcode — dihitung asli
-// lewat assessRisk() dari sample telemetri per unit, supaya konsisten dengan
-// /api/simulator/trigger. Jalankan dengan `npm run seed` setelah migration
-// 0001_init.sql + 0002_fleet_narrative_fields.sql dieksekusi.
+// Seed data — armada mining/darat dengan narasi lengkap (temuan legalitas,
+// checklist fisik) yang dipakai Dashboard & Anomali versi Figma. Skor risiko &
+// status TIDAK di-hardcode — dihitung asli lewat assessRisk() dari sample
+// telemetri per unit (formula weighted sesuai spec data-pendukung-hackathon),
+// supaya konsisten dengan /api/simulator/trigger. Jalankan `npm run seed`
+// setelah semua migration di supabase/migrations dieksekusi berurutan.
 import "dotenv/config";
 import { supabaseServer } from "../src/lib/supabase/server";
-import { assessRisk, DEFAULT_THRESHOLDS, recommendedAction, type TelemetrySample } from "../src/lib/scoring/scoringEngine";
+import { assessRisk, DEFAULT_THRESHOLDS, recommendedAction, type AlatBeratSample, type DaratSample } from "../src/lib/scoring/scoringEngine";
 import type { FleetCategory, FleetType } from "../src/types/database";
 
 function daysFromNow(offset: number) {
@@ -30,7 +30,7 @@ interface FleetSeed {
   operatorName: string;
   simExpiryOffsetDays: number;
   // sample telemetri dari lama -> baru; entri terakhir jadi status/risk_score kendaraan.
-  telemetrySeries: TelemetrySample[];
+  telemetrySeries: (DaratSample | AlatBeratSample)[];
 }
 
 const FLEET_SEED: FleetSeed[] = [
@@ -39,7 +39,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "PML-042",
     category: "alat_berat",
     unitType: "Dump Truck",
-    fleetType: "logistik",
+    fleetType: "dumptruck",
     clientName: "PT Antam SBU Nikel • HD 91T",
     kirExpiryOffsetDays: -12,
     legalitasTitle: "SIA KEMENAKER HABIS",
@@ -49,9 +49,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Ahmad Dahlan",
     simExpiryOffsetDays: -20,
     telemetrySeries: [
-      { speedKmh: 62, hardBrakingCount: 1, weather: "cerah", continuousDrivingMinutes: 120, odolIndicator: false, kirValid: true },
-      { speedKmh: 78, hardBrakingCount: 2, weather: "cerah", continuousDrivingMinutes: 200, odolIndicator: false, kirValid: true },
-      { speedKmh: 95, hardBrakingCount: 5, weather: "hujan", continuousDrivingMinutes: 300, odolIndicator: true, kirValid: false },
+      { category: "alat_berat", continuousDrivingMinutes: 90, kemiringanArea: 3, bebanAngkatPercent: 70, getaranLevel: "normal", suhuKomponen: 55, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 200, kemiringanArea: 10, bebanAngkatPercent: 95, getaranLevel: "sedang", suhuKomponen: 80, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 300, kemiringanArea: 20, bebanAngkatPercent: 125, getaranLevel: "tinggi", suhuKomponen: 95, operatorDocValid: true, unitDocValid: true },
     ],
   },
   {
@@ -59,7 +59,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "B 9421 UEK",
     category: "darat",
     unitType: "Truk Tronton",
-    fleetType: "logistik",
+    fleetType: "dumptruck",
     clientName: "PT Sinar Logistik Nusantara",
     kirExpiryOffsetDays: -5,
     legalitasTitle: "KIR KEMENHUB: KADALUARSA",
@@ -69,9 +69,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Ahmad Supardi",
     simExpiryOffsetDays: -12,
     telemetrySeries: [
-      { speedKmh: 70, hardBrakingCount: 1, weather: "cerah", continuousDrivingMinutes: 150, odolIndicator: false, kirValid: true },
-      { speedKmh: 90, hardBrakingCount: 3, weather: "hujan", continuousDrivingMinutes: 260, odolIndicator: false, kirValid: false },
-      { speedKmh: 115, hardBrakingCount: 6, weather: "kabut", continuousDrivingMinutes: 320, odolIndicator: false, kirValid: false },
+      { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 100, odolIndicator: false, muatanPercent: 80, operatorDocValid: true, unitDocValid: true },
+      { category: "darat", speedKmh: 90, hardBrakingCount: 2, weather: "hujan", continuousDrivingMinutes: 200, odolIndicator: false, muatanPercent: 105, operatorDocValid: true, unitDocValid: false },
+      { category: "darat", speedKmh: 110, hardBrakingCount: 3, weather: "hujan", continuousDrivingMinutes: 300, odolIndicator: false, muatanPercent: 90, operatorDocValid: true, unitDocValid: false },
     ],
   },
   {
@@ -79,7 +79,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "K3-EX-08",
     category: "alat_berat",
     unitType: "Excavator",
-    fleetType: "logistik",
+    fleetType: "excavator",
     clientName: "PT Freeport Indonesia",
     kirExpiryOffsetDays: 240,
     legalitasTitle: "SIA ESDM K3 TERVERIFIKASI",
@@ -89,9 +89,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Bambang Hendarto",
     simExpiryOffsetDays: 440,
     telemetrySeries: [
-      { speedKmh: 20, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, kirValid: true },
-      { speedKmh: 60, hardBrakingCount: 1, weather: "cerah", continuousDrivingMinutes: 180, odolIndicator: false, kirValid: true },
-      { speedKmh: 85, hardBrakingCount: 3, weather: "hujan", continuousDrivingMinutes: 250, odolIndicator: true, kirValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 60, kemiringanArea: 2, bebanAngkatPercent: 60, getaranLevel: "normal", suhuKomponen: 45, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 180, kemiringanArea: 8, bebanAngkatPercent: 90, getaranLevel: "sedang", suhuKomponen: 85, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 150, kemiringanArea: 8, bebanAngkatPercent: 90, getaranLevel: "sedang", suhuKomponen: 98, operatorDocValid: true, unitDocValid: true },
     ],
   },
   {
@@ -99,7 +99,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "B 7812 TGA",
     category: "darat",
     unitType: "Bus AKAP",
-    fleetType: "bus_penumpang",
+    fleetType: "bus",
     clientName: "PO Harapan Prima • AKAP",
     kirExpiryOffsetDays: 300,
     legalitasTitle: "KIR BLUE AKTIF",
@@ -109,9 +109,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Hendra Setiawan",
     simExpiryOffsetDays: 420,
     telemetrySeries: [
-      { speedKmh: 65, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 120, odolIndicator: false, kirValid: true },
-      { speedKmh: 78, hardBrakingCount: 2, weather: "hujan", continuousDrivingMinutes: 200, odolIndicator: false, kirValid: true },
-      { speedKmh: 85, hardBrakingCount: 3, weather: "kabut", continuousDrivingMinutes: 245, odolIndicator: false, kirValid: true },
+      { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, muatanPercent: 85, operatorDocValid: true, unitDocValid: true },
+      { category: "darat", speedKmh: 78, hardBrakingCount: 1, weather: "hujan", continuousDrivingMinutes: 150, odolIndicator: false, muatanPercent: 98, operatorDocValid: true, unitDocValid: true },
+      { category: "darat", speedKmh: 85, hardBrakingCount: 1, weather: "hujan", continuousDrivingMinutes: 150, odolIndicator: false, muatanPercent: 95, operatorDocValid: true, unitDocValid: true },
     ],
   },
   {
@@ -119,7 +119,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "WT-015-SCF",
     category: "alat_berat",
     unitType: "Water Truck",
-    fleetType: "logistik",
+    fleetType: "tanker",
     clientName: "PT Vale Indonesia Tbk",
     kirExpiryOffsetDays: 400,
     legalitasTitle: "SIA & KALIBRASI TANGKI SAH",
@@ -129,9 +129,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Dani Prasetyo",
     simExpiryOffsetDays: 600,
     telemetrySeries: [
-      { speedKmh: 40, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 80, odolIndicator: false, kirValid: true },
-      { speedKmh: 42, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 85, odolIndicator: false, kirValid: true },
-      { speedKmh: 45, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, kirValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 70, kemiringanArea: 2, bebanAngkatPercent: 65, getaranLevel: "normal", suhuKomponen: 50, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 75, kemiringanArea: 3, bebanAngkatPercent: 68, getaranLevel: "normal", suhuKomponen: 52, operatorDocValid: true, unitDocValid: true },
+      { category: "alat_berat", continuousDrivingMinutes: 80, kemiringanArea: 3, bebanAngkatPercent: 70, getaranLevel: "normal", suhuKomponen: 55, operatorDocValid: true, unitDocValid: true },
     ],
   },
   {
@@ -139,7 +139,7 @@ const FLEET_SEED: FleetSeed[] = [
     subCode: "B 7123 PQA",
     category: "darat",
     unitType: "Bus AKAP",
-    fleetType: "bus_penumpang",
+    fleetType: "bus",
     clientName: "PO Bintang Pantura Express",
     kirExpiryOffsetDays: 350,
     legalitasTitle: "KIR ELEKTRONIK BLUE SAH",
@@ -149,9 +149,9 @@ const FLEET_SEED: FleetSeed[] = [
     operatorName: "Markus Wibowo",
     simExpiryOffsetDays: 500,
     telemetrySeries: [
-      { speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 100, odolIndicator: false, kirValid: true },
-      { speedKmh: 58, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 110, odolIndicator: false, kirValid: true },
-      { speedKmh: 60, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 120, odolIndicator: false, kirValid: true },
+      { category: "darat", speedKmh: 50, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, muatanPercent: 85, operatorDocValid: true, unitDocValid: true },
+      { category: "darat", speedKmh: 52, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 95, odolIndicator: false, muatanPercent: 88, operatorDocValid: true, unitDocValid: true },
+      { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 100, odolIndicator: false, muatanPercent: 90, operatorDocValid: true, unitDocValid: true },
     ],
   },
 ];
@@ -193,23 +193,36 @@ async function main() {
       throw vehicleError ?? new Error(`Gagal upsert ${unit.unitCode}`);
     }
 
-    await supabase.from("drivers").insert({
-      full_name: unit.operatorName,
-      sim_number: `SIM-${unit.unitCode}`,
-      sim_expiry: daysFromNow(unit.simExpiryOffsetDays).slice(0, 10),
-      vehicle_id: vehicle.id,
-    });
+    await supabase.from("drivers").upsert(
+      {
+        full_name: unit.operatorName,
+        sim_number: `SIM-${unit.unitCode}`,
+        sim_expiry: daysFromNow(unit.simExpiryOffsetDays).slice(0, 10),
+        vehicle_id: vehicle.id,
+      },
+      { onConflict: "sim_number" }
+    );
+
+    // Reset riwayat lama vehicle ini biar seed idempotent (re-run gak numpuk duplikat).
+    await supabase.from("telemetry_logs").delete().eq("vehicle_id", vehicle.id);
+    await supabase.from("notifications").delete().eq("vehicle_id", vehicle.id);
 
     const telemetryRows = unit.telemetrySeries.map((sample, i) => {
       const assessment = assessments[i];
       const daysAgo = (unit.telemetrySeries.length - 1 - i) * 3;
+      const isDarat = sample.category === "darat";
       return {
         vehicle_id: vehicle.id,
-        speed_kmh: sample.speedKmh,
-        hard_braking_count: sample.hardBrakingCount,
-        weather: sample.weather,
+        speed_kmh: isDarat ? (sample as DaratSample).speedKmh : 0,
+        hard_braking_count: isDarat ? (sample as DaratSample).hardBrakingCount : 0,
+        weather: isDarat ? (sample as DaratSample).weather : "cerah",
         continuous_driving_minutes: sample.continuousDrivingMinutes,
-        odol_indicator: sample.odolIndicator,
+        odol_indicator: isDarat ? (sample as DaratSample).odolIndicator : false,
+        persen_muatan: isDarat ? (sample as DaratSample).muatanPercent : null,
+        kemiringan_area: !isDarat ? (sample as AlatBeratSample).kemiringanArea : null,
+        beban_angkat_persen: !isDarat ? (sample as AlatBeratSample).bebanAngkatPercent : null,
+        getaran_level: !isDarat ? (sample as AlatBeratSample).getaranLevel : null,
+        suhu_komponen: !isDarat ? (sample as AlatBeratSample).suhuKomponen : null,
         likelihood: assessment.likelihood,
         severity: assessment.severity,
         risk_score: assessment.riskScore,

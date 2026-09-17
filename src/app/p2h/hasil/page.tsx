@@ -15,11 +15,15 @@ const STATUS_COPY: Record<P2HStatus, { title: string; color: string }> = {
 function P2HResultContent() {
   const params = useSearchParams();
   const status = (params.get("status") as P2HStatus) ?? "hijau";
+  const suratJalanId = params.get("surat_jalan_id");
   const copy = STATUS_COPY[status];
 
   return (
     <main className="mx-auto max-w-md space-y-4 p-6 text-center">
       <h1 className={`text-2xl font-semibold ${copy.color}`}>{copy.title}</h1>
+      {status === "hijau" && suratJalanId && (
+        <p className="font-mono text-sm text-gray-600">No. Surat Jalan: {suratJalanId}</p>
+      )}
       <div className="space-x-2">
         <Link href="/p2h" className="rounded border px-4 py-2">
           Kembali

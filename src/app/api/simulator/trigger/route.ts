@@ -21,14 +21,14 @@ export async function POST(req: NextRequest) {
 
   const { data: vehicles, error: vehiclesError } = await supabase
     .from("vehicles")
-    .select("id, fleet_type")
+    .select("id, fleet_type, category")
     .in("id", vehicle_ids);
 
   if (vehiclesError || !vehicles) {
     return NextResponse.json({ error: vehiclesError?.message ?? "vehicles not found" }, { status: 500 });
   }
 
-  const rows = vehicles.map((v) => generateTelemetryRow(v.id, scenario, v.fleet_type));
+  const rows = vehicles.map((v) => generateTelemetryRow(v.id, scenario, v.fleet_type, v.category ?? "darat"));
 
   const { error: insertError } = await supabase.from("telemetry_logs").insert(rows);
   if (insertError) {

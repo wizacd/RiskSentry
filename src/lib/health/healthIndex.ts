@@ -8,6 +8,8 @@ export interface HealthIndexResult {
   score: number; // 0-100
   p2hComplianceRate: number; // 0-1, proporsi P2H berstatus hijau
   criticalAnomalyCount: number; // jumlah log status "bahaya" pada periode
+  warningAnomalyCount: number; // jumlah log status "waspada" pada periode
+  telemetryScore: number; // 0-100, kebersihan riwayat telematika
   fastTrackEligible: boolean;
 }
 
@@ -36,6 +38,8 @@ export function computeHealthIndex(
     score,
     p2hComplianceRate,
     criticalAnomalyCount,
+    warningAnomalyCount,
+    telemetryScore,
     fastTrackEligible:
       score >= FAST_TRACK_MIN_SCORE && criticalAnomalyCount <= FAST_TRACK_MAX_CRITICAL_ANOMALIES,
   };

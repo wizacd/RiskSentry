@@ -1,6 +1,16 @@
 "use client";
 
-export default function TopActionHeader({ onReset, onSave, saved }: { onReset: () => void; onSave: () => void; saved: boolean }) {
+export default function TopActionHeader({
+  onReset,
+  onSave,
+  saving,
+  saved,
+}: {
+  onReset: () => void;
+  onSave: () => void;
+  saving: boolean;
+  saved: boolean;
+}) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded bg-white p-5 shadow-sm">
       <div className="max-w-xl">
@@ -29,10 +39,11 @@ export default function TopActionHeader({ onReset, onSave, saved }: { onReset: (
         <button
           type="button"
           onClick={onSave}
-          className="flex items-center gap-2 rounded-sm bg-[#131b2e] px-5 py-2 text-xs font-semibold text-white shadow-sm"
+          disabled={saving}
+          className="flex items-center gap-2 rounded-sm bg-[#131b2e] px-5 py-2 text-xs font-semibold text-white shadow-sm disabled:opacity-50"
         >
           <img src="/pengaturan/save.svg" alt="" className="size-3 invert" />
-          {saved ? "✓ Tersimpan" : "Simpan Perubahan Threshold"}
+          {saving ? "Menyimpan..." : saved ? "✓ Tersimpan" : "Simpan Perubahan Threshold"}
         </button>
       </div>
     </div>
