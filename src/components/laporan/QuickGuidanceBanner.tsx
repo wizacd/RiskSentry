@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GUIDANCE } from "./mockLaporanExport";
 
 export default function QuickGuidanceBanner() {
@@ -18,14 +19,13 @@ export default function QuickGuidanceBanner() {
           </p>
         </div>
       </div>
-      <button
-        type="button"
-        disabled
-        title="Hanya unit DT-042 yang tersedia pada versi demo ini."
-        className="shrink-0 rounded-sm bg-[#f2f4f6] px-3 py-2 text-xs font-semibold text-[#191c1e] disabled:cursor-not-allowed disabled:opacity-50"
+      <Link
+        href="/potensi-resiko"
+        title="Lihat daftar seluruh unit yang terdaftar"
+        className="shrink-0 rounded-sm bg-[#f2f4f6] px-3 py-2 text-xs font-semibold text-[#191c1e] hover:bg-[#e6e8ea]"
       >
         {GUIDANCE.linkLabel}
-      </button>
+      </Link>
     </div>
   );
 }

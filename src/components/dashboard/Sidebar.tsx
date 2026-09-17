@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { label: "Notifikasi & Insiden", href: "/notifikasi" },
   { label: "Compliance Passport", href: "/compliance-passport/WT-015" },
   { label: "Detail Kendaraan / Telemetri", href: "/kendaraan/WT-015" },
-  { label: "Laporan K3", href: "/laporan/export" },
+  { label: "Laporan K3", href: "/laporan/export/WT-015" },
   { label: "Pengaturan Sistem", href: "/pengaturan/threshold" },
 ];
 

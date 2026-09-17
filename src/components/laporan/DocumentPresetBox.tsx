@@ -1,11 +1,20 @@
 "use client";
 
-import { FORMAT_SPECS, PRESET_ITEMS, REGULATION_STANDARD } from "./mockLaporanExport";
+import { FORMAT_SPECS, REGULATION_STANDARD } from "./mockLaporanExport";
+
+export interface PresetItem {
+  id: string;
+  title: string;
+  description: string;
+  available: boolean;
+}
 
 export default function DocumentPresetBox({
+  items,
   selected,
   onToggle,
 }: {
+  items: PresetItem[];
   selected: Record<string, boolean>;
   onToggle: (id: string) => void;
 }) {
@@ -38,11 +47,16 @@ export default function DocumentPresetBox({
 
       <div className="flex flex-col gap-2">
         <p className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">Lampiran Yang Disertakan</p>
-        {PRESET_ITEMS.map((item) => (
-          <label key={item.id} className="flex cursor-pointer gap-2 rounded-sm bg-[#f7f9fb] p-2 hover:bg-[#f2f4f6]">
+        {items.map((item) => (
+          <label
+            key={item.id}
+            title={item.available ? undefined : "Belum ada data untuk lampiran ini pada unit ini."}
+            className={`flex gap-2 rounded-sm bg-[#f7f9fb] p-2 ${item.available ? "cursor-pointer hover:bg-[#f2f4f6]" : "cursor-not-allowed opacity-50"}`}
+          >
             <input
               type="checkbox"
-              checked={selected[item.id] ?? true}
+              checked={item.available && (selected[item.id] ?? true)}
+              disabled={!item.available}
               onChange={() => onToggle(item.id)}
               className="mt-1 size-[13px] accent-[#0075ff]"
             />
