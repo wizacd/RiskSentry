@@ -1,4 +1,4 @@
-import { FleetRow, toneStyles } from "./mockFleetData";
+import { FleetRow, toneStyles } from "./fleetTypes";
 
 export default function FleetDetailModal({ row, onClose }: { row: FleetRow; onClose: () => void }) {
   const tone = toneStyles(row.tone);

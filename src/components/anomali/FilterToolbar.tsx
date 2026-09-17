@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES, VEHICLE_TYPES, type Severity } from "./mockAnomaliData";
+import type { Severity } from "./anomaliTypes";
 
 export type SortOrder = "tertinggi" | "terendah";
 
@@ -10,8 +10,10 @@ export default function FilterToolbar({
   counts,
   category,
   onCategory,
+  categoryOptions,
   vehicleType,
   onVehicleType,
+  vehicleTypeOptions,
   search,
   onSearch,
   sortOrder,
@@ -24,8 +26,10 @@ export default function FilterToolbar({
   counts: { semua: number; bahaya: number; waspada: number };
   category: string;
   onCategory: (v: string) => void;
+  categoryOptions: string[];
   vehicleType: string;
   onVehicleType: (v: string) => void;
+  vehicleTypeOptions: string[];
   search: string;
   onSearch: (v: string) => void;
   sortOrder: SortOrder;
@@ -75,7 +79,7 @@ export default function FilterToolbar({
               onChange={(e) => onCategory(e.target.value)}
               className="rounded-sm bg-[#f2f4f6] px-3 py-1.5 text-[11px] font-bold text-[#191c1e]"
             >
-              {CATEGORIES.map((c) => (
+              {categoryOptions.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -86,7 +90,7 @@ export default function FilterToolbar({
               onChange={(e) => onVehicleType(e.target.value)}
               className="rounded-sm bg-[#f2f4f6] px-3 py-1.5 text-[11px] font-bold text-[#191c1e]"
             >
-              {VEHICLE_TYPES.map((v) => (
+              {vehicleTypeOptions.map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>

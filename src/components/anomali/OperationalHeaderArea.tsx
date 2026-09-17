@@ -1,12 +1,12 @@
 export default function OperationalHeaderArea({
-  demoActive,
-  onToggleDemo,
+  simulating,
+  onSimulate,
   zeroMode,
   onToggleZeroMode,
   onExport,
 }: {
-  demoActive: boolean;
-  onToggleDemo: () => void;
+  simulating: boolean;
+  onSimulate: () => void;
   zeroMode: boolean;
   onToggleZeroMode: () => void;
   onExport: () => void;
@@ -37,13 +37,12 @@ export default function OperationalHeaderArea({
       <div className="flex flex-col gap-2">
         <button
           type="button"
-          onClick={onToggleDemo}
-          className={`flex items-center gap-1.5 rounded-sm px-3 py-2 text-xs font-semibold tracking-wide shadow-sm ${
-            demoActive ? "bg-[#ba1a1a] text-white hover:bg-[#93000a]" : "bg-[#131b2e] text-white hover:bg-[#1f2a44]"
-          }`}
+          onClick={onSimulate}
+          disabled={simulating}
+          className="flex items-center gap-1.5 rounded-sm bg-[#131b2e] px-3 py-2 text-xs font-semibold tracking-wide text-white shadow-sm hover:bg-[#1f2a44] disabled:opacity-50"
         >
           <img src="/anomali/header-simulate.svg" alt="" className="h-[13.3px] w-[10.7px]" />
-          {demoActive ? "Hapus Simulasi Demo Juri" : "Simulasikan Potensi Risiko Baru (Demo Juri)"}
+          {simulating ? "Mengirim Skenario..." : "Simulasikan Potensi Risiko Baru (Demo Juri)"}
         </button>
         <div className="flex flex-wrap gap-2">
           <button

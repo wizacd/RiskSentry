@@ -8,11 +8,14 @@ import OperationalHeaderArea from "@/components/anomali/OperationalHeaderArea";
 import MetricKpiStrip from "@/components/anomali/MetricKpiStrip";
 import FilterToolbar, { type SortOrder } from "@/components/anomali/FilterToolbar";
 import AnomalyCard from "@/components/anomali/AnomalyCard";
-import { ANOMALY_ITEMS, DEMO_ANOMALY, type Severity } from "@/components/anomali/mockAnomaliData";
+import { useAnomaliData } from "@/components/anomali/useAnomaliData";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import type { Severity } from "@/components/anomali/anomaliTypes";
 
 export default function AnomaliPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [demoActive, setDemoActive] = useState(false);
+  const { items: baseItems, loading } = useAnomaliData();
+  const [simulating, setSimulating] = useState(false);
   const [zeroMode, setZeroMode] = useState(false);
   const [severityFilter, setSeverityFilter] = useState<Severity | "semua">("semua");
   const [category, setCategory] = useState("Semua Kategori Masalah");
@@ -21,7 +24,14 @@ export default function AnomaliPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("tertinggi");
   const [acknowledgedIds, setAcknowledgedIds] = useState<Set<string>>(new Set());
 
-  const baseItems = useMemo(() => (demoActive ? [DEMO_ANOMALY, ...ANOMALY_ITEMS] : ANOMALY_ITEMS), [demoActive]);
+  const categoryOptions = useMemo(
+    () => ["Semua Kategori Masalah", ...Array.from(new Set(baseItems.map((i) => i.category)))],
+    [baseItems]
+  );
+  const vehicleTypeOptions = useMemo(
+    () => ["Semua Jenis Armada", ...Array.from(new Set(baseItems.map((i) => i.vehicleType)))],
+    [baseItems]
+  );
 
   const counts = useMemo(
     () => ({
@@ -31,6 +41,11 @@ export default function AnomaliPage() {
     }),
     [baseItems]
   );
+
+  const kpiCounts = useMemo(() => {
+    const avg = baseItems.length > 0 ? Math.round(baseItems.reduce((sum, i) => sum + i.riskScore, 0) / baseItems.length) : 0;
+    return { totalActive: baseItems.length, avgScore: avg, bahaya: counts.bahaya, waspada: counts.waspada };
+  }, [baseItems, counts]);
 
   const filteredItems = useMemo(() => {
     if (zeroMode) return [];
@@ -56,6 +71,26 @@ export default function AnomaliPage() {
       next.add(id);
       return next;
     });
+  }
+
+  async function handleSimulate() {
+    setSimulating(true);
+    try {
+      const { data: candidates } = await supabaseBrowser
+        .from("vehicles")
+        .select("id,status")
+        .not("unit_code", "is", null);
+      const target = candidates?.find((v) => v.status === "aman") ?? candidates?.[0];
+      if (!target) return;
+      await fetch("/api/simulator/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicle_ids: [target.id], scenario: "bahaya" }),
+      });
+      // Kartu baru masuk otomatis lewat realtime subscription di useAnomaliData.
+    } finally {
+      setSimulating(false);
+    }
   }
 
   function handleExportCsv() {
@@ -89,21 +124,23 @@ export default function AnomaliPage() {
         <TelemetryTicker />
         <main className="flex flex-1 flex-col">
           <OperationalHeaderArea
-            demoActive={demoActive}
-            onToggleDemo={() => setDemoActive((v) => !v)}
+            simulating={simulating}
+            onSimulate={handleSimulate}
             zeroMode={zeroMode}
             onToggleZeroMode={() => setZeroMode((v) => !v)}
             onExport={handleExportCsv}
           />
-          <MetricKpiStrip />
+          <MetricKpiStrip counts={kpiCounts} />
           <FilterToolbar
             severityFilter={severityFilter}
             onSeverityFilter={setSeverityFilter}
             counts={counts}
             category={category}
             onCategory={setCategory}
+            categoryOptions={categoryOptions}
             vehicleType={vehicleType}
             onVehicleType={setVehicleType}
+            vehicleTypeOptions={vehicleTypeOptions}
             search={search}
             onSearch={setSearch}
             sortOrder={sortOrder}
@@ -113,7 +150,11 @@ export default function AnomaliPage() {
           />
 
           <div className="flex flex-1 flex-col gap-3 bg-[#f7f9fb] px-6 pb-6">
-            {zeroMode ? (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center gap-2 rounded bg-white p-12 text-center shadow-sm">
+                <p className="text-sm text-[#45464d]">Memuat data telemetri dari Supabase...</p>
+              </div>
+            ) : zeroMode ? (
               <div className="flex flex-col items-center justify-center gap-2 rounded bg-white p-12 text-center shadow-sm">
                 <span className="flex size-12 items-center justify-center rounded-full bg-[#ecfdf5] text-2xl">✓</span>
                 <p className="text-lg font-bold text-[#191c1e]">Armada Aman — 0 Potensi Risiko Terdeteksi</p>
@@ -124,7 +165,11 @@ export default function AnomaliPage() {
             ) : filteredItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 rounded bg-white p-12 text-center shadow-sm">
                 <p className="text-lg font-bold text-[#191c1e]">Tidak Ada Kasus Yang Cocok</p>
-                <p className="max-w-md text-sm text-[#45464d]">Ubah kata kunci pencarian atau filter untuk melihat kasus lainnya.</p>
+                <p className="max-w-md text-sm text-[#45464d]">
+                  {baseItems.length === 0
+                    ? "Belum ada unit berstatus waspada/bahaya di database saat ini."
+                    : "Ubah kata kunci pencarian atau filter untuk melihat kasus lainnya."}
+                </p>
               </div>
             ) : (
               filteredItems.map((item) => (

@@ -3,6 +3,7 @@
 export default function PageHeaderActionBar({
   counts,
   onSimulate,
+  simulating,
   onMarkAllRead,
   onToggleSort,
   sortOldestFirst,
@@ -10,6 +11,7 @@ export default function PageHeaderActionBar({
 }: {
   counts: { total: number; unresolved: number; grounded: number; avgResponse: string };
   onSimulate: () => void;
+  simulating: boolean;
   onMarkAllRead: () => void;
   onToggleSort: () => void;
   sortOldestFirst: boolean;
@@ -29,10 +31,11 @@ export default function PageHeaderActionBar({
           <button
             type="button"
             onClick={onSimulate}
-            className="flex items-center gap-1.5 rounded bg-[#ba1a1a] px-3 py-2 text-xs font-bold text-white shadow-sm"
+            disabled={simulating}
+            className="flex items-center gap-1.5 rounded bg-[#ba1a1a] px-3 py-2 text-xs font-bold text-white shadow-sm disabled:opacity-50"
           >
             <img src="/notifikasi/megaphone.svg" alt="" className="h-[11px] w-[13px] invert" />
-            Simulasikan Bahaya Masuk (Demo Juri)
+            {simulating ? "Mengirim Skenario..." : "Simulasikan Bahaya Masuk (Demo Juri)"}
           </button>
           <button
             type="button"

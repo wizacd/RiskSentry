@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NotificationItem, TONE_STYLES } from "./mockNotifications";
+import { NotificationItem, TONE_STYLES } from "./notificationTypes";
 
 const HAS_DETAIL_PAGE = new Set(["DT-042"]);
 
@@ -25,7 +25,7 @@ export default function NotificationCard({
             <div className="flex flex-wrap items-center gap-2">
               {!item.read && <span className="size-2.5 rounded-full bg-[#ba1a1a]" />}
               <span className={`rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${tone.badgeBg} ${tone.badgeText}`}>
-                {item.tone === "bahaya" ? "Bahaya Kritis" : item.tone === "waspada" ? "Waspada" : "Status Pulih (Fit)"}
+                {item.tone === "bahaya" ? "Bahaya Kritis" : "Waspada"}
               </span>
               <span className="text-lg font-bold text-[#191c1e]">{item.vehicleLabel}</span>
               <span className="text-xs text-[#45464d]">• {item.site}</span>

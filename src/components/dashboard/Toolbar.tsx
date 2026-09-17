@@ -1,5 +1,3 @@
-import { CLIENT_OPTIONS, UNIT_TYPE_OPTIONS } from "./mockFleetData";
-
 export type CategoryFilter = "semua" | "alat_berat" | "darat";
 
 export default function Toolbar({
@@ -7,8 +5,10 @@ export default function Toolbar({
   onQueryChange,
   client,
   onClientChange,
+  clientOptions,
   unitType,
   onUnitTypeChange,
+  unitTypeOptions,
   category,
   onCategoryChange,
   sortByRisk,
@@ -22,8 +22,10 @@ export default function Toolbar({
   onQueryChange: (value: string) => void;
   client: string;
   onClientChange: (value: string) => void;
+  clientOptions: string[];
   unitType: string;
   onUnitTypeChange: (value: string) => void;
+  unitTypeOptions: string[];
   category: CategoryFilter;
   onCategoryChange: (value: CategoryFilter) => void;
   sortByRisk: boolean;
@@ -58,7 +60,7 @@ export default function Toolbar({
               className="appearance-none rounded-sm bg-[#f2f4f6] py-1.5 pl-3 pr-8 text-[11px] font-bold uppercase tracking-wide text-[#191c1e] focus:outline-none focus:ring-2 focus:ring-[#131b2e]/20"
             >
               <option value="semua">{`Semua Klien Tambang, PO Bus & Logistik (${counts.total})`}</option>
-              {CLIENT_OPTIONS.map((c) => (
+              {clientOptions.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -77,7 +79,7 @@ export default function Toolbar({
               className="appearance-none rounded-sm bg-[#f2f4f6] py-1.5 pl-3 pr-8 text-[11px] font-bold uppercase tracking-wide text-[#191c1e] focus:outline-none focus:ring-2 focus:ring-[#131b2e]/20"
             >
               <option value="semua">Semua Tipe Unit Multi-Moda</option>
-              {UNIT_TYPE_OPTIONS.map((t) => (
+              {unitTypeOptions.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>

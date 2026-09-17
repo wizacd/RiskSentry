@@ -8,6 +8,8 @@ export type P2HStatus = "hijau" | "kuning" | "merah";
 export type WorkOrderStatus = "terbuka" | "diproses" | "selesai";
 export type Weather = "cerah" | "hujan" | "kabut";
 
+export type FleetCategory = "alat_berat" | "darat";
+
 export interface Vehicle {
   id: string;
   plate_number: string;
@@ -19,6 +21,15 @@ export interface Vehicle {
   risk_score: number;
   created_at: string;
   updated_at: string;
+  // Kolom narasi armada (migration 0002) — nullable karena legacy rows belum diisi.
+  unit_code: string | null;
+  sub_code: string | null;
+  category: FleetCategory | null;
+  unit_type: string | null;
+  legalitas_title: string | null;
+  legalitas_lines: string[] | null;
+  checklist_title: string | null;
+  checklist_note: string | null;
 }
 
 export interface Driver {

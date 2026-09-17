@@ -1,4 +1,4 @@
-import { FleetRow, toneHex, toneStyles } from "./mockFleetData";
+import { FleetRow, toneHex, toneStyles } from "./fleetTypes";
 import Sparkline from "./Sparkline";
 
 const GRID_TEMPLATE = "300px 190px 190px 200px 90px 110px 170px 140px";
@@ -145,12 +145,16 @@ function FleetTableRow({
 export default function FleetTable({
   rows,
   totalCount,
+  alatBeratCount,
+  daratCount,
   submittedKeys,
   onDetail,
   onAction,
 }: {
   rows: FleetRow[];
   totalCount: number;
+  alatBeratCount: number;
+  daratCount: number;
   submittedKeys: Set<string>;
   onDetail: (row: FleetRow) => void;
   onAction: (rowId: string, label: string) => void;
@@ -180,7 +184,7 @@ export default function FleetTable({
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 bg-[#f2f4f6] px-3 py-2">
         <p className="text-[13px] font-semibold tracking-tight text-[#191c1e]">
-          Menampilkan {rows.length} dari {totalCount} Unit Armada Terpadu (74 Alat Berat Tambang • 112 Angkutan Darat)
+          Menampilkan {rows.length} dari {totalCount} Unit Armada Terpadu ({alatBeratCount} Alat Berat Tambang • {daratCount} Angkutan Darat)
           <span className="mx-1 text-[#c6c6cd]">•</span>
           <span className="font-medium text-[#45464d]">
             Regulasi: Kepmen ESDM No. 1827 K/30/MEM/2018 (K3 Minerba) &amp; UU No. 22 Tahun 2009 / Permenhub Rampcheck
@@ -189,22 +193,6 @@ export default function FleetTable({
         <div className="flex items-center gap-1">
           <button type="button" aria-current="page" className="rounded-sm bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-[#191c1e] shadow-sm">
             Halaman 1
-          </button>
-          <button
-            type="button"
-            disabled
-            title="Data contoh (mock) hanya mencakup halaman 1"
-            className="cursor-not-allowed rounded-sm bg-white px-2 py-1 text-[11px] font-bold text-[#c6c6cd] shadow-sm"
-          >
-            2
-          </button>
-          <button
-            type="button"
-            disabled
-            title="Data contoh (mock) hanya mencakup halaman 1"
-            className="cursor-not-allowed rounded-sm bg-white px-2 py-1 text-[11px] font-bold text-[#c6c6cd] shadow-sm"
-          >
-            3
           </button>
         </div>
       </div>

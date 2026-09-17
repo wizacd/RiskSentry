@@ -1,4 +1,4 @@
-import { FAST_FILTERS, FastFilterId } from "./mockNotifications";
+import { FAST_FILTERS, FastFilterId } from "./notificationTypes";
 
 export default function FilterBar({
   activeFilter,

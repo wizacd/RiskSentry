@@ -8,12 +8,9 @@ import PageHeaderActionBar from "@/components/notifikasi/PageHeaderActionBar";
 import FilterBar from "@/components/notifikasi/FilterBar";
 import NotificationCard from "@/components/notifikasi/NotificationCard";
 import PaginationFooter from "@/components/notifikasi/PaginationFooter";
-import {
-  FastFilterId,
-  INITIAL_NOTIFICATIONS,
-  NotificationItem,
-  SURPRISE_ALERTS,
-} from "@/components/notifikasi/mockNotifications";
+import { useNotificationsData } from "@/components/notifikasi/useNotificationsData";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { FastFilterId, NotificationItem } from "@/components/notifikasi/notificationTypes";
 
 function downloadCsv(items: NotificationItem[]) {
   const header = ["Kategori", "Kendaraan", "Wilayah", "Waktu", "ID Kasus", "Status"];
@@ -32,15 +29,14 @@ function downloadCsv(items: NotificationItem[]) {
   URL.revokeObjectURL(url);
 }
 
-let simulatedIdCounter = 0;
-
 export default function NotifikasiPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const { items: notifications, loading, markRead, markAllRead } = useNotificationsData();
   const [activeFilter, setActiveFilter] = useState<FastFilterId>("semua");
   const [query, setQuery] = useState("");
   const [site, setSite] = useState("semua");
   const [sortOldestFirst, setSortOldestFirst] = useState(false);
+  const [simulating, setSimulating] = useState(false);
 
   const siteOptions = useMemo(() => Array.from(new Set(notifications.map((n) => n.site))).sort(), [notifications]);
 
@@ -50,7 +46,6 @@ export default function NotifikasiPage() {
       unread: notifications.filter((n) => !n.read).length,
       bahaya: notifications.filter((n) => n.tone === "bahaya").length,
       waspada: notifications.filter((n) => n.tone === "waspada").length,
-      selesai: notifications.filter((n) => n.tone === "selesai").length,
     }),
     [notifications]
   );
@@ -60,7 +55,7 @@ export default function NotifikasiPage() {
       total: notifications.length,
       unresolved: notifications.filter((n) => !n.read && n.tone === "bahaya").length,
       grounded: notifications.filter((n) => n.grounded).length,
-      avgResponse: "3.4",
+      avgResponse: "4.8",
     }),
     [notifications]
   );
@@ -84,19 +79,26 @@ export default function NotifikasiPage() {
     return result;
   }, [notifications, activeFilter, site, query, sortOldestFirst]);
 
-  function handleMarkRead(id: string) {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-  }
+  async function handleSimulate() {
+    setSimulating(true);
+    try {
+      const { data: candidates } = await supabaseBrowser
+        .from("vehicles")
+        .select("id,status")
+        .not("unit_code", "is", null);
 
-  function handleMarkAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }
+      const target = candidates?.find((v) => v.status === "aman") ?? candidates?.[0];
+      if (!target) return;
 
-  function handleSimulate() {
-    const template = SURPRISE_ALERTS[simulatedIdCounter % SURPRISE_ALERTS.length];
-    simulatedIdCounter += 1;
-    const newItem: NotificationItem = { ...template, id: `sim-${simulatedIdCounter}`, read: false };
-    setNotifications((prev) => [newItem, ...prev]);
+      await fetch("/api/simulator/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicle_ids: [target.id], scenario: "bahaya" }),
+      });
+      // Notifikasi baru masuk otomatis lewat realtime subscription di useNotificationsData.
+    } finally {
+      setSimulating(false);
+    }
   }
 
   return (
@@ -109,7 +111,8 @@ export default function NotifikasiPage() {
           <PageHeaderActionBar
             counts={kpiCounts}
             onSimulate={handleSimulate}
-            onMarkAllRead={handleMarkAllRead}
+            simulating={simulating}
+            onMarkAllRead={markAllRead}
             onToggleSort={() => setSortOldestFirst((v) => !v)}
             sortOldestFirst={sortOldestFirst}
             onExportCsv={() => downloadCsv(visible)}
@@ -125,12 +128,16 @@ export default function NotifikasiPage() {
             siteOptions={siteOptions}
           />
           <div className="flex flex-col gap-3">
-            {visible.length === 0 ? (
+            {loading ? (
+              <p className="rounded-lg bg-white p-8 text-center text-sm text-[#45464d] shadow-sm">
+                Memuat notifikasi dari Supabase...
+              </p>
+            ) : visible.length === 0 ? (
               <p className="rounded-lg bg-white p-8 text-center text-sm text-[#45464d] shadow-sm">
                 Tidak ada notifikasi yang cocok dengan filter ini.
               </p>
             ) : (
-              visible.map((item) => <NotificationCard key={item.id} item={item} onMarkRead={handleMarkRead} />)
+              visible.map((item) => <NotificationCard key={item.id} item={item} onMarkRead={markRead} />)
             )}
           </div>
           <PaginationFooter shown={visible.length} total={notifications.length} />

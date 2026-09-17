@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { AnomalyItem } from "./mockAnomaliData";
+import type { AnomalyItem } from "./anomaliTypes";
 
 const SEVERITY_STYLES = {
   bahaya: {

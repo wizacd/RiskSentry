@@ -8,9 +8,8 @@ import KpiCards from "@/components/dashboard/KpiCards";
 import Toolbar, { CategoryFilter } from "@/components/dashboard/Toolbar";
 import FleetTable from "@/components/dashboard/FleetTable";
 import FleetDetailModal from "@/components/dashboard/FleetDetailModal";
-import { FLEET_ROWS, FleetRow, FleetTone } from "@/components/dashboard/mockFleetData";
-
-const TOTAL_UNIT_COUNT = 186;
+import { useFleetData } from "@/components/dashboard/useFleetData";
+import { FleetRow, FleetTone } from "@/components/dashboard/fleetTypes";
 
 type ToneFilter = "semua" | FleetTone;
 
@@ -43,21 +42,28 @@ export default function DashboardPage() {
   const [submittedKeys, setSubmittedKeys] = useState<Set<string>>(new Set());
   const [detailRow, setDetailRow] = useState<FleetRow | null>(null);
 
-  const counts = useMemo(
-    () => ({
-      total: TOTAL_UNIT_COUNT,
-      alatBerat: 74,
-      darat: 112,
-      grounded: FLEET_ROWS.filter((r) => r.tone === "bahaya").length,
-      waspada: FLEET_ROWS.filter((r) => r.tone === "waspada").length,
-      laik: FLEET_ROWS.filter((r) => r.tone === "aman").length,
-    }),
-    []
-  );
+  const { rows: allRows, loading } = useFleetData();
+
+  const clientOptions = useMemo(() => Array.from(new Set(allRows.map((r) => r.client))).sort(), [allRows]);
+  const unitTypeOptions = useMemo(() => Array.from(new Set(allRows.map((r) => r.unitType))).sort(), [allRows]);
+
+  const counts = useMemo(() => {
+    const bahayaRows = allRows.filter((r) => r.tone === "bahaya");
+    return {
+      total: allRows.length,
+      alatBerat: allRows.filter((r) => r.category === "alat_berat").length,
+      darat: allRows.filter((r) => r.category === "darat").length,
+      aman: allRows.filter((r) => r.tone === "aman").length,
+      waspada: allRows.filter((r) => r.tone === "waspada").length,
+      bahaya: bahayaRows.length,
+      bahayaAlatBerat: bahayaRows.filter((r) => r.category === "alat_berat").length,
+      bahayaDarat: bahayaRows.filter((r) => r.category === "darat").length,
+    };
+  }, [allRows]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const filtered = FLEET_ROWS.filter((row) => {
+    const filtered = allRows.filter((row) => {
       const matchesCategory = category === "semua" || row.category === category;
       const matchesClient = client === "semua" || row.client === client;
       const matchesUnitType = unitType === "semua" || row.unitType === unitType;
@@ -72,10 +78,10 @@ export default function DashboardPage() {
       return matchesCategory && matchesClient && matchesUnitType && matchesTone && matchesBap && matchesQuery;
     });
     if (sortByRisk) {
-      return [...filtered].sort((a, b) => b.score.value - a.score.value);
+      return [...filtered].sort((a, b) => a.score.value - b.score.value);
     }
     return filtered;
-  }, [query, client, unitType, category, toneFilter, bapOnly, sortByRisk]);
+  }, [allRows, query, client, unitType, category, toneFilter, bapOnly, sortByRisk]);
 
   function handleAction(rowId: string, label: string) {
     setSubmittedKeys((prev) => new Set(prev).add(`${rowId}:${label}`));
@@ -88,14 +94,16 @@ export default function DashboardPage() {
         <DashboardHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
         <main className="flex flex-1 flex-col gap-3 overflow-x-auto px-6 py-4">
           <TelemetryTicker />
-          <KpiCards toneFilter={toneFilter} onSelectTone={setToneFilter} />
+          <KpiCards counts={counts} toneFilter={toneFilter} onSelectTone={setToneFilter} />
           <Toolbar
             query={query}
             onQueryChange={setQuery}
             client={client}
             onClientChange={setClient}
+            clientOptions={clientOptions}
             unitType={unitType}
             onUnitTypeChange={setUnitType}
+            unitTypeOptions={unitTypeOptions}
             category={category}
             onCategoryChange={setCategory}
             sortByRisk={sortByRisk}
@@ -103,9 +111,30 @@ export default function DashboardPage() {
             bapOnly={bapOnly}
             onToggleBapOnly={() => setBapOnly((v) => !v)}
             onExportCsv={() => downloadCsv(rows)}
-            counts={counts}
+            counts={{
+              total: counts.total,
+              alatBerat: counts.alatBerat,
+              darat: counts.darat,
+              grounded: counts.bahaya,
+              waspada: counts.waspada,
+              laik: counts.aman,
+            }}
           />
-          <FleetTable rows={rows} totalCount={TOTAL_UNIT_COUNT} submittedKeys={submittedKeys} onDetail={setDetailRow} onAction={handleAction} />
+          {loading ? (
+            <div className="rounded-[4px] bg-white p-10 text-center text-sm text-[#45464d] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]">
+              Memuat data armada dari Supabase...
+            </div>
+          ) : (
+            <FleetTable
+              rows={rows}
+              totalCount={counts.total}
+              alatBeratCount={counts.alatBerat}
+              daratCount={counts.darat}
+              submittedKeys={submittedKeys}
+              onDetail={setDetailRow}
+              onAction={handleAction}
+            />
+          )}
         </main>
       </div>
       {detailRow && <FleetDetailModal row={detailRow} onClose={() => setDetailRow(null)} />}

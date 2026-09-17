@@ -9,7 +9,7 @@ export default function PaginationFooter({ shown, total }: { shown: number; tota
         <button
           type="button"
           disabled
-          title="Data contoh (mock) hanya mencakup halaman 1"
+          title="Hanya 1 halaman tersedia saat ini"
           className="cursor-not-allowed rounded-sm bg-[#f2f4f6] px-3 py-1.5 text-[11px] font-bold text-[#c6c6cd]"
         >
           Sebelumnya
@@ -20,7 +20,7 @@ export default function PaginationFooter({ shown, total }: { shown: number; tota
         <button
           type="button"
           disabled
-          title="Data contoh (mock) hanya mencakup halaman 1"
+          title="Hanya 1 halaman tersedia saat ini"
           className="flex size-8 cursor-not-allowed items-center justify-center rounded-sm bg-[#f2f4f6] text-[11px] font-bold text-[#c6c6cd]"
         >
           2
@@ -28,7 +28,7 @@ export default function PaginationFooter({ shown, total }: { shown: number; tota
         <button
           type="button"
           disabled
-          title="Data contoh (mock) hanya mencakup halaman 1"
+          title="Hanya 1 halaman tersedia saat ini"
           className="flex size-8 cursor-not-allowed items-center justify-center rounded-sm bg-[#f2f4f6] text-[11px] font-bold text-[#c6c6cd]"
         >
           3
@@ -36,7 +36,7 @@ export default function PaginationFooter({ shown, total }: { shown: number; tota
         <button
           type="button"
           disabled
-          title="Data contoh (mock) hanya mencakup halaman 1"
+          title="Hanya 1 halaman tersedia saat ini"
           className="cursor-not-allowed rounded-sm bg-[#f2f4f6] px-3 py-1.5 text-[11px] font-bold text-[#c6c6cd]"
         >
           Selanjutnya
