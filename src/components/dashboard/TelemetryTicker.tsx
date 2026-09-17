@@ -35,9 +35,7 @@ export default function TelemetryTicker() {
           />
           <span className="flex flex-col">
             <span className="text-[11px] font-bold uppercase tracking-wide text-[#191c1e]">Ir. Hendra Gunawan, S.Si.T</span>
-            <span className="text-[10px] font-semibold uppercase text-[#545f73]">
-              Inspektur Senior Armada &amp; K3 Tambang
-            </span>
+            <span className="text-[10px] font-semibold uppercase text-[#545f73]">Senior Inspektur Armada</span>
           </span>
         </div>
       </div>
