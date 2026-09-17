@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { label: "Anomali & P2H", href: "/anomali" },
   { label: "Notifikasi & Insiden", href: "/notifikasi" },
   { label: "Compliance Passport", href: "/compliance-passport" },
-  { label: "Detail Kendaraan / Telemetri", href: "/kendaraan" },
+  { label: "Detail Kendaraan / Telemetri", href: "/kendaraan/DT-042" },
   { label: "Laporan K3", href: "/laporan/export" },
   { label: "Pengaturan Sistem", href: "/pengaturan/threshold" },
 ];

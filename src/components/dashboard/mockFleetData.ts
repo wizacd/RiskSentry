@@ -24,7 +24,7 @@ export interface FleetRow {
     title: string;
     note: string;
   };
-  trendIcon: string;
+  trend: number[];
   score: { value: number; label: string };
   status: { label: string };
   actions: { label: string; tone: "neutral" | FleetTone }[];
@@ -73,6 +73,16 @@ export function toneStyles(tone: FleetTone) {
   return TONE_STYLES[tone];
 }
 
+const TONE_HEX: Record<FleetTone, string> = {
+  bahaya: "#dc2626",
+  waspada: "#f59e0b",
+  aman: "#059669",
+};
+
+export function toneHex(tone: FleetTone) {
+  return TONE_HEX[tone];
+}
+
 export const FLEET_ROWS: FleetRow[] = [
   {
     id: "DT-042",
@@ -98,7 +108,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "BOCOR OLI HOIST SILINDER • BRAKE ACCUMULATOR 4.1 BAR",
       note: "Tekanan rem darurat…",
     },
-    trendIcon: "/dashboard/trend-red.svg",
+    trend: [58, 62, 71, 78, 85, 94],
     score: { value: 94, label: "Kritis" },
     status: { label: "Dilarang Operasi (Pit)" },
     actions: [
@@ -130,7 +140,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "REM KAKI BLONG • MINYAK REM BOCOR • LAMPU REM MATI",
       note: "Pedal rem amblas ke…",
     },
-    trendIcon: "/dashboard/trend-red.svg",
+    trend: [55, 60, 68, 75, 84, 92],
     score: { value: 92, label: "Risiko Berat" },
     status: { label: "Dilarang Jalan (BAP)" },
     actions: [
@@ -162,7 +172,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "SUHU ENGINE 98°C • TRACK SHOE KIRI AUS 75%",
       note: "Perlu pengencangan",
     },
-    trendIcon: "/dashboard/trend-amber.svg",
+    trend: [22, 28, 33, 38, 43, 48],
     score: { value: 48, label: "Sedang" },
     status: { label: "Waspada Tiket 24J" },
     actions: [
@@ -194,7 +204,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "BAN DEPAN KANAN 1.8MM • KLAKSON ANGIN MACET",
       note: "Wiper kiri getar saat…",
     },
-    trendIcon: "/dashboard/trend-amber-2.svg",
+    trend: [20, 25, 30, 35, 40, 44],
     score: { value: 44, label: "Sedang" },
     status: { label: "Waspada Tiket 24J" },
     actions: [
@@ -226,7 +236,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "POMPA SPRAY NORMAL • RETARDER PRIMA • APAR 100%",
       note: "Sistem kemudi ganda,",
     },
-    trendIcon: "/dashboard/trend-green.svg",
+    trend: [14, 12, 11, 10, 9, 8],
     score: { value: 8, label: "Sangat Aman" },
     status: { label: "Layak Operasi Resmi" },
     actions: [
@@ -258,7 +268,7 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "CHECKLIST RAMPCHECK SEMPURNA (12/12 LOLOS)",
       note: "Rem angin, palu…",
     },
-    trendIcon: "/dashboard/trend-green-2.svg",
+    trend: [16, 14, 13, 11, 10, 10],
     score: { value: 10, label: "Sangat Aman" },
     status: { label: "Layak Jalan Resmi" },
     actions: [

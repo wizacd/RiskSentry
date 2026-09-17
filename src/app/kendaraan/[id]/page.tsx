@@ -1,58 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase/client";
-import type { P2HRecord, TelemetryLog, Vehicle } from "@/types/database";
+import { useState } from "react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import VehicleHeader from "@/components/kendaraan-detail/VehicleHeader";
+import GroundedAlertStrip from "@/components/kendaraan-detail/GroundedAlertStrip";
+import IdentityCard from "@/components/kendaraan-detail/IdentityCard";
+import OperatorCard from "@/components/kendaraan-detail/OperatorCard";
+import RiskGaugeCard from "@/components/kendaraan-detail/RiskGaugeCard";
+import TelemetryPanel from "@/components/kendaraan-detail/TelemetryPanel";
+import InspectionHistory from "@/components/kendaraan-detail/InspectionHistory";
+import AnomalyLog from "@/components/kendaraan-detail/AnomalyLog";
 
-// TODO(Person 2, Figma): tambahkan gauge skor + chart time-series (Chart.js/Recharts)
-// untuk telemetryLogs, dan timeline untuk p2hRecords.
-export default function VehicleDetailPage({ params }: { params: { id: string } }) {
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [telemetryLogs, setTelemetryLogs] = useState<TelemetryLog[]>([]);
-  const [p2hRecords, setP2hRecords] = useState<P2HRecord[]>([]);
+export default function VehicleDetailPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedLogId, setExpandedLogId] = useState("log1");
 
-  useEffect(() => {
-    supabaseBrowser.from("vehicles").select("*").eq("id", params.id).single().then(({ data }) => setVehicle(data));
-    supabaseBrowser
-      .from("telemetry_logs")
-      .select("*")
-      .eq("vehicle_id", params.id)
-      .order("recorded_at", { ascending: false })
-      .limit(50)
-      .then(({ data }) => setTelemetryLogs(data ?? []));
-    supabaseBrowser
-      .from("p2h_records")
-      .select("*")
-      .eq("vehicle_id", params.id)
-      .order("submitted_at", { ascending: false })
-      .then(({ data }) => setP2hRecords(data ?? []));
-  }, [params.id]);
-
-  if (!vehicle) return <main className="p-6">Memuat...</main>;
+  function handleFlagClick(logId: string) {
+    setExpandedLogId(logId);
+    document.getElementById(`anomaly-${logId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
-    <main className="space-y-6 p-6">
-      <h1 className="text-xl font-semibold">Detail Kendaraan — {vehicle.plate_number}</h1>
-      <section>
-        <h2 className="mb-2 font-medium">Log Telemetri Terbaru</h2>
-        <ul className="space-y-1 text-sm">
-          {telemetryLogs.map((log) => (
-            <li key={log.id}>
-              {new Date(log.recorded_at).toLocaleString("id-ID")} — {log.speed_kmh} km/h, status {log.status}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2 className="mb-2 font-medium">Riwayat P2H</h2>
-        <ul className="space-y-1 text-sm">
-          {p2hRecords.map((r) => (
-            <li key={r.id}>
-              {new Date(r.submitted_at).toLocaleString("id-ID")} — {r.final_status}
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
+    <div className="flex min-h-screen bg-[#f6f7f8]">
+      <Sidebar open={sidebarOpen} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <VehicleHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
+        <main className="flex flex-1 flex-col gap-3 px-6 py-4">
+          <GroundedAlertStrip />
+
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+            <IdentityCard />
+            <OperatorCard />
+            <RiskGaugeCard />
+          </div>
+
+          <TelemetryPanel onFlagClick={handleFlagClick} />
+
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <InspectionHistory />
+            <AnomalyLog expandedId={expandedLogId} onToggle={(id) => setExpandedLogId((prev) => (prev === id ? "" : id))} />
+          </div>
+        </main>
+        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e6e8ea] bg-[#f2f4f6] px-6 py-4 text-xs text-[#45464d]">
+          <div className="flex flex-wrap items-center gap-3">
+            <span>© 2026 PT Sucofindo (Persero) - IDSurvey Holding. All rights reserved.</span>
+            <span className="text-[#c6c6cd]">•</span>
+            <span>Sistem Informasi Manajemen Keselamatan Operasional &amp; K3</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <img src="/kendaraan/lock.svg" alt="" className="h-[13px] w-[10px]" />
+              <span className="text-[11px] font-bold tracking-wide text-[#545f73]">256-Bit SSL Encrypted Session</span>
+            </div>
+            <span className="text-[#c6c6cd]">|</span>
+            <span className="text-[11px] font-bold tracking-wide text-[#45464d]">Secured Audit Level-4</span>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 }

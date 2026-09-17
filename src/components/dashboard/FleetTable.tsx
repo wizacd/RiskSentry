@@ -1,4 +1,5 @@
-import { FleetRow, toneStyles } from "./mockFleetData";
+import { FleetRow, toneHex, toneStyles } from "./mockFleetData";
+import Sparkline from "./Sparkline";
 
 const GRID_TEMPLATE = "300px 190px 190px 200px 90px 110px 170px 140px";
 
@@ -89,7 +90,7 @@ function FleetTableRow({
       </div>
 
       <div className="flex justify-center">
-        <img src={row.trendIcon} alt="" className="h-6 w-16" />
+        <Sparkline data={row.trend} color={toneHex(row.tone)} />
       </div>
 
       <div className="flex justify-center">
