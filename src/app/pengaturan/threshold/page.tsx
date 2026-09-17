@@ -1,61 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase/client";
-import type { ThresholdConfig } from "@/types/database";
+import { useState } from "react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import TelemetryTicker from "@/components/dashboard/TelemetryTicker";
+import VehicleHeader from "@/components/kendaraan-detail/VehicleHeader";
+import TopActionHeader from "@/components/pengaturan/TopActionHeader";
+import FleetCategoryTabs from "@/components/pengaturan/FleetCategoryTabs";
+import CategoryDirectiveBanner from "@/components/pengaturan/CategoryDirectiveBanner";
+import ThresholdSliders from "@/components/pengaturan/ThresholdSliders";
+import TelemetryMultipliers from "@/components/pengaturan/TelemetryMultipliers";
+import ImpactSimulator from "@/components/pengaturan/ImpactSimulator";
+import { FLEET_CATEGORIES } from "@/components/pengaturan/mockThresholdConfig";
 
-// TODO(Person 2, Figma): ganti input number di bawah dengan slider sesuai desain.
 export default function ThresholdSettingsPage() {
-  const [configs, setConfigs] = useState<ThresholdConfig[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeCategoryId, setActiveCategoryId] = useState(FLEET_CATEGORIES[0].id);
+  const [thresholds, setThresholds] = useState<Record<string, { t1: number; t2: number }>>(
+    Object.fromEntries(FLEET_CATEGORIES.map((c) => [c.id, { t1: c.defaults.threshold1, t2: c.defaults.threshold2 }]))
+  );
+  const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    supabaseBrowser.from("threshold_configs").select("*").then(({ data }) => setConfigs(data ?? []));
-  }, []);
+  const category = FLEET_CATEGORIES.find((c) => c.id === activeCategoryId) ?? FLEET_CATEGORIES[0];
+  const current = thresholds[activeCategoryId];
 
-  async function save(config: ThresholdConfig) {
-    await supabaseBrowser
-      .from("threshold_configs")
-      .update({ waspada_threshold: config.waspada_threshold, bahaya_threshold: config.bahaya_threshold })
-      .eq("id", config.id);
+  function setT1(value: number) {
+    setSaved(false);
+    setThresholds((prev) => ({ ...prev, [activeCategoryId]: { ...prev[activeCategoryId], t1: Math.min(value, prev[activeCategoryId].t2 - 1) } }));
+  }
+
+  function setT2(value: number) {
+    setSaved(false);
+    setThresholds((prev) => ({ ...prev, [activeCategoryId]: { ...prev[activeCategoryId], t2: Math.max(value, prev[activeCategoryId].t1 + 1) } }));
+  }
+
+  function resetCategory() {
+    setSaved(false);
+    setThresholds((prev) => ({ ...prev, [activeCategoryId]: { t1: category.defaults.threshold1, t2: category.defaults.threshold2 } }));
+  }
+
+  function handleSave() {
+    setSaved(true);
   }
 
   return (
-    <main className="space-y-4 p-6">
-      <h1 className="text-xl font-semibold">Pengaturan Threshold Skor</h1>
-      {configs.map((config, idx) => (
-        <div key={config.id} className="max-w-sm space-y-2 rounded border bg-white p-4">
-          <p className="font-medium">{config.fleet_type}</p>
-          <label className="block text-sm">
-            Ambang Waspada
-            <input
-              type="number"
-              className="mt-1 w-full rounded border px-2 py-1"
-              value={config.waspada_threshold}
-              onChange={(e) => {
-                const updated = [...configs];
-                updated[idx] = { ...config, waspada_threshold: Number(e.target.value) };
-                setConfigs(updated);
-              }}
-            />
-          </label>
-          <label className="block text-sm">
-            Ambang Bahaya
-            <input
-              type="number"
-              className="mt-1 w-full rounded border px-2 py-1"
-              value={config.bahaya_threshold}
-              onChange={(e) => {
-                const updated = [...configs];
-                updated[idx] = { ...config, bahaya_threshold: Number(e.target.value) };
-                setConfigs(updated);
-              }}
-            />
-          </label>
-          <button onClick={() => save(configs[idx])} className="rounded bg-gray-900 px-3 py-1 text-sm text-white">
-            Simpan
-          </button>
-        </div>
-      ))}
-    </main>
+    <div className="flex min-h-screen bg-[#f6f7f8]">
+      <Sidebar open={sidebarOpen} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <VehicleHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
+        <main className="flex flex-1 flex-col gap-3 px-6 py-4">
+          <TelemetryTicker />
+          <TopActionHeader onReset={resetCategory} onSave={handleSave} saved={saved} />
+          <FleetCategoryTabs activeId={activeCategoryId} onSelect={(id) => { setActiveCategoryId(id); setSaved(false); }} />
+
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+            <div className="flex flex-col gap-3 lg:col-span-7">
+              <CategoryDirectiveBanner category={category} />
+              <ThresholdSliders category={category} t1={current.t1} t2={current.t2} onT1Change={setT1} onT2Change={setT2} />
+              <TelemetryMultipliers />
+            </div>
+            <div className="lg:col-span-5">
+              <ImpactSimulator categoryId={category.id} categoryLabel={category.label} t1={current.t1} t2={current.t2} />
+            </div>
+          </div>
+        </main>
+        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e6e8ea] bg-[#f2f4f6] px-6 py-4 text-xs text-[#45464d]">
+          <div className="flex flex-wrap items-center gap-3">
+            <span>© 2026 PT Sucofindo (Persero) - IDSurvey Holding. All rights reserved.</span>
+            <span className="text-[#c6c6cd]">•</span>
+            <span>Sistem Informasi Manajemen Keselamatan Operasional &amp; K3</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <img src="/pengaturan/lock.svg" alt="" className="h-[13px] w-[10px]" />
+              <span className="text-[11px] font-bold tracking-wide text-[#545f73]">256-Bit SSL Encrypted Session</span>
+            </div>
+            <span className="text-[#c6c6cd]">|</span>
+            <span className="text-[11px] font-bold tracking-wide text-[#45464d]">Secured Audit Level-4</span>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 }
