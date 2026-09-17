@@ -14,10 +14,6 @@ export default function TelemetryTicker() {
           <span className="text-[13px] font-semibold tracking-tight text-[#545f73]">Realtime Telemetri</span>
           <span className="text-[11px] text-[#c6c6cd]">•</span>
         </div>
-        <div className="flex items-center gap-1 rounded-sm bg-white px-2 py-1 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-          <img src="/dashboard/bell.svg" alt="" className="h-[12px] w-[12px]" />
-          <span className="text-[11px] font-bold uppercase tracking-wide text-[#545f73]">Alarm Audio Aktif</span>
-        </div>
       </div>
       <div className="flex items-center gap-2">
         <Link
