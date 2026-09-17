@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { signIn } from "@/lib/auth/mockAuth";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { useSession } from "@/lib/auth/useSession";
 
 const DEMO_ACCOUNT = {
   employeeId: "asesor.k3@sucofindo.co.id",
@@ -11,20 +12,39 @@ const DEMO_ACCOUNT = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { session, loading: sessionLoading } = useSession();
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberSession, setRememberSession] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const redirected = useRef(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    if (!sessionLoading && session && !redirected.current) {
+      redirected.current = true;
+      router.replace("/dashboard");
+    }
+  }, [sessionLoading, session, router]);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!employeeId.trim() || !password.trim()) {
       setError("ID Karyawan/Email dan Kata Sandi wajib diisi.");
       return;
     }
     setError("");
-    signIn(employeeId.trim());
+    setSubmitting(true);
+    const { error: authError } = await supabaseBrowser.auth.signInWithPassword({
+      email: employeeId.trim(),
+      password,
+    });
+    setSubmitting(false);
+    if (authError) {
+      setError("ID Karyawan/Email atau Kata Sandi salah. Coba lagi atau pakai Isi Akun Demo.");
+      return;
+    }
     router.push("/dashboard");
   }
 
@@ -192,10 +212,11 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-sm bg-black px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]"
+                disabled={submitting}
+                className="flex w-full items-center justify-center gap-2 rounded-sm bg-black px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] disabled:opacity-50"
               >
                 <img src="/login/arrow-right.svg" alt="" className="size-[15px]" />
-                Masuk ke Command Center
+                {submitting ? "Memverifikasi..." : "Masuk ke Command Center"}
               </button>
             </div>
 

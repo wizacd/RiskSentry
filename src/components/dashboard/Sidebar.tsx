@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { useSession } from "@/lib/auth/useSession";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard" },
@@ -15,6 +18,21 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ open }: { open: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { session, loading } = useSession();
+  const [signingOut, setSigningOut] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !session) {
+      router.replace("/login");
+    }
+  }, [loading, session, router]);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await supabaseBrowser.auth.signOut();
+    router.replace("/login");
+  }
 
   return (
     <div
@@ -55,7 +73,22 @@ export default function Sidebar({ open }: { open: boolean }) {
           </nav>
         </div>
 
-        <div className="p-3">
+        <div className="flex flex-col gap-2 p-3">
+          {session?.user.email && (
+            <div className="flex items-center justify-between rounded-sm bg-[#f2f4f6] px-3 py-2">
+              <span className="truncate text-xs font-semibold text-[#191c1e]" title={session.user.email}>
+                {session.user.email}
+              </span>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-[#ba1a1a] hover:underline disabled:opacity-50"
+              >
+                {signingOut ? "Keluar..." : "Keluar"}
+              </button>
+            </div>
+          )}
           <div className="space-y-1 rounded-sm bg-[#f2f4f6] p-3">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">Protokol K3</span>
