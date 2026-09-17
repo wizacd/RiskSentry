@@ -1,76 +1,114 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { supabaseBrowser } from "@/lib/supabase/client";
-import type { Vehicle } from "@/types/database";
+import { useMemo, useState } from "react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import TelemetryTicker from "@/components/dashboard/TelemetryTicker";
+import KpiCards from "@/components/dashboard/KpiCards";
+import Toolbar, { CategoryFilter } from "@/components/dashboard/Toolbar";
+import FleetTable from "@/components/dashboard/FleetTable";
+import FleetDetailModal from "@/components/dashboard/FleetDetailModal";
+import { FLEET_ROWS, FleetRow, FleetTone } from "@/components/dashboard/mockFleetData";
 
-const STATUS_STYLE: Record<Vehicle["status"], string> = {
-  aman: "bg-status-aman/10 text-status-aman",
-  waspada: "bg-status-waspada/10 text-status-waspada",
-  bahaya: "bg-status-bahaya/10 text-status-bahaya",
-};
+const TOTAL_UNIT_COUNT = 186;
 
-// TODO(Person 2, Figma): ganti tabel sederhana ini dengan card grid/peta armada
-// dari desain Figma. Bagian yang perlu dipertahankan: subscribe realtime di bawah,
-// supaya badge status ikut berubah saat /demo-simulator dipicu.
+type ToneFilter = "semua" | FleetTone;
+
+function downloadCsv(rows: FleetRow[]) {
+  const header = ["Unit", "No Lambung/Polisi", "Klien", "Operator", "Skor Kelaikan", "Status Operasi"];
+  const lines = rows.map((row) =>
+    [row.unitCode, row.subCode, row.client, row.operator.name, row.score.value, row.status.label]
+      .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+      .join(",")
+  );
+  const csv = [header.join(","), ...lines].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "fleet-inspection-matrix.csv";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function DashboardPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [query, setQuery] = useState("");
+  const [client, setClient] = useState("semua");
+  const [unitType, setUnitType] = useState("semua");
+  const [category, setCategory] = useState<CategoryFilter>("semua");
+  const [toneFilter, setToneFilter] = useState<ToneFilter>("semua");
+  const [sortByRisk, setSortByRisk] = useState(false);
+  const [bapOnly, setBapOnly] = useState(false);
+  const [submittedKeys, setSubmittedKeys] = useState<Set<string>>(new Set());
+  const [detailRow, setDetailRow] = useState<FleetRow | null>(null);
 
-  useEffect(() => {
-    supabaseBrowser
-      .from("vehicles")
-      .select("*")
-      .order("risk_score", { ascending: false })
-      .then(({ data }) => setVehicles(data ?? []));
+  const counts = useMemo(
+    () => ({
+      total: TOTAL_UNIT_COUNT,
+      alatBerat: 74,
+      darat: 112,
+      grounded: FLEET_ROWS.filter((r) => r.tone === "bahaya").length,
+      waspada: FLEET_ROWS.filter((r) => r.tone === "waspada").length,
+      laik: FLEET_ROWS.filter((r) => r.tone === "aman").length,
+    }),
+    []
+  );
 
-    const channel = supabaseBrowser
-      .channel("vehicles-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, (payload) => {
-        setVehicles((prev) => {
-          const updated = payload.new as Vehicle;
-          const exists = prev.some((v) => v.id === updated.id);
-          return exists ? prev.map((v) => (v.id === updated.id ? updated : v)) : [...prev, updated];
-        });
-      })
-      .subscribe();
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = FLEET_ROWS.filter((row) => {
+      const matchesCategory = category === "semua" || row.category === category;
+      const matchesClient = client === "semua" || row.client === client;
+      const matchesUnitType = unitType === "semua" || row.unitType === unitType;
+      const matchesTone = toneFilter === "semua" || row.tone === toneFilter;
+      const matchesBap = !bapOnly || row.tone === "bahaya";
+      const matchesQuery =
+        q.length === 0 ||
+        row.unitCode.toLowerCase().includes(q) ||
+        row.subCode.toLowerCase().includes(q) ||
+        row.operator.name.toLowerCase().includes(q) ||
+        row.client.toLowerCase().includes(q);
+      return matchesCategory && matchesClient && matchesUnitType && matchesTone && matchesBap && matchesQuery;
+    });
+    if (sortByRisk) {
+      return [...filtered].sort((a, b) => b.score.value - a.score.value);
+    }
+    return filtered;
+  }, [query, client, unitType, category, toneFilter, bapOnly, sortByRisk]);
 
-    return () => {
-      supabaseBrowser.removeChannel(channel);
-    };
-  }, []);
+  function handleAction(rowId: string, label: string) {
+    setSubmittedKeys((prev) => new Set(prev).add(`${rowId}:${label}`));
+  }
 
   return (
-    <main className="p-6">
-      <h1 className="mb-4 text-xl font-semibold">Dashboard Multi-Armada</h1>
-      <table className="w-full overflow-hidden rounded-lg border bg-white text-sm">
-        <thead className="bg-gray-100 text-left">
-          <tr>
-            <th className="p-3">Plat Nomor</th>
-            <th className="p-3">Klien</th>
-            <th className="p-3">Skor Risiko</th>
-            <th className="p-3">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {vehicles.map((v) => (
-            <tr key={v.id} className="border-t">
-              <td className="p-3">
-                <Link href={`/kendaraan/${v.id}`} className="underline">
-                  {v.plate_number}
-                </Link>
-              </td>
-              <td className="p-3">{v.client_name}</td>
-              <td className="p-3">{v.risk_score}</td>
-              <td className="p-3">
-                <span className={`rounded px-2 py-1 text-xs font-medium ${STATUS_STYLE[v.status]}`}>
-                  {v.status.toUpperCase()}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </main>
+    <div className="flex min-h-screen bg-[#f6f7f8]">
+      <Sidebar open={sidebarOpen} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <DashboardHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
+        <main className="flex flex-1 flex-col gap-3 overflow-x-auto px-6 py-4">
+          <TelemetryTicker />
+          <KpiCards toneFilter={toneFilter} onSelectTone={setToneFilter} />
+          <Toolbar
+            query={query}
+            onQueryChange={setQuery}
+            client={client}
+            onClientChange={setClient}
+            unitType={unitType}
+            onUnitTypeChange={setUnitType}
+            category={category}
+            onCategoryChange={setCategory}
+            sortByRisk={sortByRisk}
+            onToggleSortByRisk={() => setSortByRisk((v) => !v)}
+            bapOnly={bapOnly}
+            onToggleBapOnly={() => setBapOnly((v) => !v)}
+            onExportCsv={() => downloadCsv(rows)}
+            counts={counts}
+          />
+          <FleetTable rows={rows} totalCount={TOTAL_UNIT_COUNT} submittedKeys={submittedKeys} onDetail={setDetailRow} onAction={handleAction} />
+        </main>
+      </div>
+      {detailRow && <FleetDetailModal row={detailRow} onClose={() => setDetailRow(null)} />}
+    </div>
   );
 }

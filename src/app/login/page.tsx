@@ -15,10 +15,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberSession, setRememberSession] = useState(false);
+  const [error, setError] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!employeeId.trim() || !password.trim()) return;
+    if (!employeeId.trim() || !password.trim()) {
+      setError("ID Karyawan/Email dan Kata Sandi wajib diisi.");
+      return;
+    }
+    setError("");
     signIn(employeeId.trim());
     router.push("/dashboard");
   }
@@ -178,6 +183,12 @@ export default function LoginPage() {
                 />
                 <span className="text-xs text-[#191c1e]">Ingat sesi workstation command center (8 jam)</span>
               </label>
+
+              {error && (
+                <p role="alert" className="text-xs font-semibold text-[#b91c1c]">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"
