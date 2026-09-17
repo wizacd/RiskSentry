@@ -48,7 +48,7 @@ export default function VehicleHeader({
       </div>
       <div className="ml-auto flex items-center gap-1 rounded-sm border border-[#c6c6cd] bg-[#f2f4f6] px-[9px] py-[5px]">
         <span className="size-[6px] rounded-full bg-[#065f46]" />
-        <span className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">K3 ESDM Certified Gateway</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">K3 Certified Gateway</span>
       </div>
     </header>
   );
