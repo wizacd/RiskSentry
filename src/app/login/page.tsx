@@ -216,7 +216,7 @@ export default function LoginPage() {
                 </p>
               </div>
               <p className="pt-1 text-center font-mono text-[11px] text-[#45464d]">
-                SIGAP Enterprise v4.2-RELEASE • Build 2024.11-SUCOFINDO-AUDIT
+                RiskSentry Enterprise v4.2-RELEASE • Build 2024.11-SUCOFINDO-AUDIT
               </p>
             </div>
           </form>

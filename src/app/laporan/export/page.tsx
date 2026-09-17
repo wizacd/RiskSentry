@@ -17,7 +17,7 @@ function ExportLaporanContent() {
 
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("SIGAP — Laporan Compliance Passport", 14, 20);
+    doc.text("RiskSentry — Laporan Compliance Passport", 14, 20);
     doc.setFontSize(11);
     doc.text(`Kendaraan: ${vehicleId}`, 14, 32);
     doc.text(`Health Index Score: ${result.score}/100`, 14, 40);
