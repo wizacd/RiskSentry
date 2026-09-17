@@ -108,8 +108,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "BOCOR OLI HOIST SILINDER • BRAKE ACCUMULATOR 4.1 BAR",
       note: "Tekanan rem darurat…",
     },
-    trend: [58, 62, 71, 78, 85, 94],
-    score: { value: 94, label: "Kritis" },
+    trend: [42, 38, 31, 24, 18, 12],
+    score: { value: 12, label: "Kritis" },
     status: { label: "Dilarang Operasi (Pit)" },
     actions: [
       { label: "Detail", tone: "neutral" },
@@ -140,8 +140,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "REM KAKI BLONG • MINYAK REM BOCOR • LAMPU REM MATI",
       note: "Pedal rem amblas ke…",
     },
-    trend: [55, 60, 68, 75, 84, 92],
-    score: { value: 92, label: "Risiko Berat" },
+    trend: [45, 40, 32, 25, 19, 15],
+    score: { value: 15, label: "Risiko Berat" },
     status: { label: "Dilarang Jalan (BAP)" },
     actions: [
       { label: "Detail", tone: "neutral" },
@@ -160,7 +160,7 @@ export const FLEET_ROWS: FleetRow[] = [
     operator: {
       name: "Bambang Hendarto",
       license: "SIMPER Valid Minerba ESDM",
-      note: "EXP: DES 2025",
+      note: "EXP: DES 2026",
     },
     legalitas: {
       icon: "/dashboard/check-green.svg",
@@ -172,8 +172,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "SUHU ENGINE 98°C • TRACK SHOE KIRI AUS 75%",
       note: "Perlu pengencangan",
     },
-    trend: [22, 28, 33, 38, 43, 48],
-    score: { value: 48, label: "Sedang" },
+    trend: [78, 72, 67, 62, 57, 52],
+    score: { value: 52, label: "Sedang" },
     status: { label: "Waspada Tiket 24J" },
     actions: [
       { label: "Detail", tone: "neutral" },
@@ -192,7 +192,7 @@ export const FLEET_ROWS: FleetRow[] = [
     operator: {
       name: "Hendra Setiawan",
       license: "SIM BII Umum • Valid Dishub",
-      note: "EXP: NOV 2025",
+      note: "EXP: NOV 2026",
     },
     legalitas: {
       icon: "/dashboard/check-green.svg",
@@ -204,8 +204,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "BAN DEPAN KANAN 1.8MM • KLAKSON ANGIN MACET",
       note: "Wiper kiri getar saat…",
     },
-    trend: [20, 25, 30, 35, 40, 44],
-    score: { value: 44, label: "Sedang" },
+    trend: [80, 75, 70, 65, 60, 56],
+    score: { value: 56, label: "Sedang" },
     status: { label: "Waspada Tiket 24J" },
     actions: [
       { label: "Detail", tone: "neutral" },
@@ -224,7 +224,7 @@ export const FLEET_ROWS: FleetRow[] = [
     operator: {
       name: "Dani Prasetyo",
       license: "SIMPER ESDM Tambang Aktif",
-      note: "EXP: AGT 2026",
+      note: "EXP: AGT 2027",
     },
     legalitas: {
       icon: "/dashboard/check-green-2.svg",
@@ -236,8 +236,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "POMPA SPRAY NORMAL • RETARDER PRIMA • APAR 100%",
       note: "Sistem kemudi ganda,",
     },
-    trend: [14, 12, 11, 10, 9, 8],
-    score: { value: 8, label: "Sangat Aman" },
+    trend: [86, 88, 89, 90, 91, 92],
+    score: { value: 92, label: "Sangat Aman" },
     status: { label: "Layak Operasi Resmi" },
     actions: [
       { label: "Detail", tone: "neutral" },
@@ -256,7 +256,7 @@ export const FLEET_ROWS: FleetRow[] = [
     operator: {
       name: "Markus Wibowo",
       license: "SIM BII Umum • Rampcheck Ready",
-      note: "EXP: MEI 2026",
+      note: "EXP: MEI 2027",
     },
     legalitas: {
       icon: "/dashboard/check-green-2.svg",
@@ -268,8 +268,8 @@ export const FLEET_ROWS: FleetRow[] = [
       title: "CHECKLIST RAMPCHECK SEMPURNA (12/12 LOLOS)",
       note: "Rem angin, palu…",
     },
-    trend: [16, 14, 13, 11, 10, 10],
-    score: { value: 10, label: "Sangat Aman" },
+    trend: [84, 86, 87, 89, 90, 90],
+    score: { value: 90, label: "Sangat Aman" },
     status: { label: "Layak Jalan Resmi" },
     actions: [
       { label: "Detail", tone: "neutral" },

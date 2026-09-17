@@ -119,7 +119,7 @@ export interface AnomalyFlag {
 export const ANOMALY_FLAGS: AnomalyFlag[] = [
   {
     id: "flag1",
-    time: "07:18 WITA",
+    time: "07:18 WIB",
     label: "Hard Braking Spike",
     tone: "waspada",
     desc: "Muatan ore penuh (32 ton) menyebabkan lonjakan suhu tromol roda belakang ke 88°C.",
@@ -127,7 +127,7 @@ export const ANOMALY_FLAGS: AnomalyFlag[] = [
   },
   {
     id: "flag2",
-    time: "08:14 WITA",
+    time: "08:14 WIB",
     label: "Pengawasan Ketat Otomatis",
     tone: "waspada",
     desc: "Tekanan rem mendekati ambang minimum. Sistem mengaktifkan mode pengawasan real-time pada turunan pit.",
@@ -153,7 +153,7 @@ export const INSPECTION_HISTORY: InspectionItem[] = [
     date: "Hari Ini • 28 Okt 2024",
     desc: "P2H Alat Berat: Tekanan angin rem 4.1 Bar. Rampcheck Darat: Uji KIR BLUE kadaluarsa 14 hari, wiper & lampu rem mati.",
     inspector: "Hendra Pratama (Sucofindo)",
-    time: "06:15 WITA",
+    time: "06:15 WIB",
   },
   {
     id: "insp2",
@@ -162,7 +162,7 @@ export const INSPECTION_HISTORY: InspectionItem[] = [
     date: "27 Okt 2024",
     desc: "24/24 Item P2H Komatsu memenuhi syarat. Rampcheck Hino: Tekanan ban, klakson, APAR, & palu pemecah kaca lengkap.",
     inspector: "Budi Santoso (Mekanik K3)",
-    time: "06:05 WITA",
+    time: "06:05 WIB",
   },
   {
     id: "insp3",
@@ -171,7 +171,7 @@ export const INSPECTION_HISTORY: InspectionItem[] = [
     date: "26 Okt 2024",
     desc: "P2H Alat Berat lolos. Catatan Rampcheck: Masa berlaku KIR tersisa 2 hari, diminta perpanjangan uji berkala segera.",
     inspector: "Budi Santoso",
-    time: "06:12 WITA",
+    time: "06:12 WIB",
   },
   {
     id: "insp4",
@@ -180,7 +180,7 @@ export const INSPECTION_HISTORY: InspectionItem[] = [
     date: "25 Okt 2024",
     desc: "Inspeksi Bus Antarkota BUS-024: Pintu darurat, APAR kabin, rem retarder, & kartu pengawasan izin trayek aktif.",
     inspector: "Irwan Kurniawan",
-    time: "06:08 WITA",
+    time: "06:08 WIB",
   },
 ];
 
@@ -192,7 +192,7 @@ export const INSPECTION_ARCHIVE: InspectionItem[] = [
     date: "24 Okt 2024",
     desc: "P2H rutin Komatsu HD785: seluruh 24 item checklist memenuhi standar K3 Minerba.",
     inspector: "Budi Santoso",
-    time: "06:10 WITA",
+    time: "06:10 WIB",
   },
   {
     id: "insp6",
@@ -201,7 +201,7 @@ export const INSPECTION_ARCHIVE: InspectionItem[] = [
     date: "23 Okt 2024",
     desc: "Rampcheck LLAJ: tekanan angin sedikit di bawah optimal (6.8 Bar), diminta pemantauan harian.",
     inspector: "Hendra Pratama (Sucofindo)",
-    time: "06:20 WITA",
+    time: "06:20 WIB",
   },
 ];
 
@@ -221,7 +221,7 @@ export const ANOMALY_LOG: AnomalyLogEntry[] = [
     id: "log1",
     tone: "waspada",
     tag: "Waspada ESDM",
-    time: "08:14:22 WITA",
+    time: "08:14:22 WIB",
     title: "Peringatan P2H: Tekanan Angin Komatsu Mendekati Ambang (6.2 Bar)",
     detail:
       "Analisis Sensor Sucofindo: Tekanan sirkuit pneumatik sekunder Komatsu HD785 mencapai 6.2 Bar, mendekati batas bawah standar K3 ESDM (6.5 – 8.0 Bar). Unit tetap diizinkan beroperasi dengan pengawasan real-time pada turunan Hauling Pit Selatan.",
@@ -232,7 +232,7 @@ export const ANOMALY_LOG: AnomalyLogEntry[] = [
     id: "log2",
     tone: "bahaya",
     tag: "Kritis Dishub",
-    time: "07:55:10 WITA",
+    time: "07:55:10 WIB",
     title: "Rampcheck: Lampu Rem Mati & Minyak Rem Bocor (Tronton)",
     detail:
       "Analisis Inspektur Sucofindo: Pemeriksaan visual rampcheck menemukan lampu rem tidak menyala dan rembesan minyak rem pada kaliper roda belakang kiri. Unit berisiko tinggi mengalami keterlambatan pengereman pada malam hari atau kondisi hujan.",
@@ -243,7 +243,7 @@ export const ANOMALY_LOG: AnomalyLogEntry[] = [
     id: "log3",
     tone: "waspada",
     tag: "Waspada",
-    time: "07:18:00 WITA",
+    time: "07:18:00 WIB",
     title: "Hard-Braking Ekstrem (-6.8 m/s²) Muatan Penuh",
     detail:
       "Analisis Sensor Sucofindo: Terdeteksi deselerasi mendadak -6.8 m/s² saat muatan ore penuh (32 ton), menyebabkan lonjakan suhu tromol roda belakang hingga 88°C. Berpotensi mempercepat keausan brake lining.",
@@ -254,7 +254,7 @@ export const ANOMALY_LOG: AnomalyLogEntry[] = [
     id: "log4",
     tone: "waspada",
     tag: "Waspada",
-    time: "06:45:10 WITA",
+    time: "06:45:10 WIB",
     title: "Deteksi Fatigue DMS (Micro-Sleep > 1.5 Detik)",
     detail:
       "Analisis Kamera DMS: Terdeteksi 2 episode micro-sleep berdurasi lebih dari 1.5 detik dalam 1 jam terakhir. Operator disarankan istirahat sebelum melanjutkan shift.",

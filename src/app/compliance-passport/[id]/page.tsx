@@ -1,34 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import type { HealthIndexResult } from "@/lib/health/healthIndex";
+import { useState } from "react";
+import Sidebar from "@/components/dashboard/Sidebar";
+import TelemetryTicker from "@/components/dashboard/TelemetryTicker";
+import VehicleHeader from "@/components/kendaraan-detail/VehicleHeader";
+import DocumentHeaderActionBar from "@/components/compliance/DocumentHeaderActionBar";
+import CredentialBanner from "@/components/compliance/CredentialBanner";
+import UnitIdentityCard from "@/components/compliance/UnitIdentityCard";
+import HealthIndexCard from "@/components/compliance/HealthIndexCard";
+import ComplianceTimeline from "@/components/compliance/ComplianceTimeline";
 
-// TODO(Person 3, Figma): ganti dengan ringkasan visual Health Index Score +
-// timeline riwayat P2H & anomali sesuai desain.
-export default function CompliancePassportPage({ params }: { params: { id: string } }) {
-  const [result, setResult] = useState<HealthIndexResult | null>(null);
+export default function CompliancePassportPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    fetch(`/api/health-index/${params.id}`)
-      .then((res) => res.json())
-      .then(setResult);
-  }, [params.id]);
-
-  if (!result) return <main className="p-6">Memuat...</main>;
+  function scrollToTimeline() {
+    document.getElementById("compliance-timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   return (
-    <main className="space-y-4 p-6">
-      <h1 className="text-xl font-semibold">Compliance Passport</h1>
-      <p className="text-3xl font-bold">{result.score}/100</p>
-      <p>Kepatuhan P2H: {(result.p2hComplianceRate * 100).toFixed(0)}%</p>
-      <p>Anomali kritis: {result.criticalAnomalyCount}</p>
-      <p className={result.fastTrackEligible ? "text-status-aman" : "text-status-waspada"}>
-        {result.fastTrackEligible ? "Layak fast-track verifikasi KIR" : "Belum memenuhi syarat fast-track"}
-      </p>
-      <Link href={`/laporan/export?vehicleId=${params.id}`} className="inline-block rounded bg-gray-900 px-4 py-2 text-white">
-        Export Laporan
-      </Link>
-    </main>
+    <div className="flex min-h-screen bg-[#f6f7f8]">
+      <Sidebar open={sidebarOpen} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <VehicleHeader sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
+        <main className="flex flex-1 flex-col gap-3 px-6 py-4">
+          <TelemetryTicker />
+          <DocumentHeaderActionBar onCompare={scrollToTimeline} />
+          <CredentialBanner />
+
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+            <UnitIdentityCard />
+            <HealthIndexCard />
+          </div>
+
+          <ComplianceTimeline />
+        </main>
+        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e6e8ea] bg-[#f2f4f6] px-6 py-4 text-xs text-[#45464d]">
+          <div className="flex flex-wrap items-center gap-3">
+            <span>© 2026 PT Sucofindo (Persero) - IDSurvey Holding. All rights reserved.</span>
+            <span className="text-[#c6c6cd]">•</span>
+            <span>Sistem Informasi Manajemen Keselamatan Operasional &amp; K3</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <img src="/compliance/lock.svg" alt="" className="h-[13px] w-[10px]" />
+              <span className="text-[11px] font-bold tracking-wide text-[#545f73]">256-Bit SSL Encrypted Session</span>
+            </div>
+            <span className="text-[#c6c6cd]">|</span>
+            <span className="text-[11px] font-bold tracking-wide text-[#45464d]">Secured Audit Level-4</span>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 }
