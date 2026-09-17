@@ -30,7 +30,9 @@ export default function GroundedAlertStrip({ vehicle }: { vehicle: Vehicle }) {
         </div>
       </div>
       <div className="w-fit rounded-sm bg-white/15 px-3 py-1.5">
-        <span className="text-[13px] font-bold tracking-wide text-white">UNIT: {vehicle.unit_code} • SKOR: {vehicle.risk_score}/100</span>
+        <span className="text-[13px] font-bold tracking-wide text-white">
+          UNIT: {vehicle.unit_code} • SKOR KELAIKAN: {Math.round((100 - vehicle.risk_score) * 10) / 10}/100
+        </span>
       </div>
     </div>
   );

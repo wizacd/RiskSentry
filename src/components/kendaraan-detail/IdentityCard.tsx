@@ -37,8 +37,8 @@ export default function IdentityCard({ vehicle }: { vehicle: Vehicle }) {
           <p className="text-xs font-bold text-[#191c1e]">{vehicle.client_name}</p>
         </div>
         <div>
-          <p className="text-[11px] font-bold text-[#45464d]">Skor Risiko K3</p>
-          <p className="text-[13px] font-bold text-[#191c1e]">{vehicle.risk_score} / 100</p>
+          <p className="text-[11px] font-bold text-[#45464d]">Skor Kelaikan K3</p>
+          <p className="text-[13px] font-bold text-[#191c1e]">{Math.round((100 - vehicle.risk_score) * 10) / 10} / 100</p>
         </div>
       </div>
 

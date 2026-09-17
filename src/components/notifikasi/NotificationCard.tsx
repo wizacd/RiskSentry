@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { NotificationItem, TONE_STYLES } from "./notificationTypes";
 
-const HAS_DETAIL_PAGE = new Set(["DT-042"]);
-
 export default function NotificationCard({
   item,
   onMarkRead,
@@ -11,7 +9,7 @@ export default function NotificationCard({
   onMarkRead: (id: string) => void;
 }) {
   const tone = TONE_STYLES[item.tone];
-  const hasDetail = HAS_DETAIL_PAGE.has(item.vehicleId);
+  const hasDetail = item.vehicleId !== "—";
 
   return (
     <div className="relative overflow-hidden rounded-lg bg-white p-5 shadow-sm">

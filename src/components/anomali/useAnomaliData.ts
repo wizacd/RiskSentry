@@ -45,7 +45,7 @@ function mapToAnomalyItem(vehicle: Vehicle, driver: Driver | undefined, latestTe
     secondaryActionLabel: "Detail Riwayat Kasus",
     category: vehicle.category === "alat_berat" ? "Alat Berat & Tambang" : "Transportasi Darat",
     vehicleType: vehicle.unit_type,
-    hasDetailPage: vehicle.unit_code === "DT-042",
+    hasDetailPage: true,
   };
 }
 

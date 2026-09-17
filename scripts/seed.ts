@@ -7,12 +7,26 @@
 import "dotenv/config";
 import { supabaseServer } from "../src/lib/supabase/server";
 import { assessRisk, DEFAULT_THRESHOLDS, recommendedAction, type AlatBeratSample, type DaratSample } from "../src/lib/scoring/scoringEngine";
-import type { FleetCategory, FleetType } from "../src/types/database";
+import { validasiP2H } from "../src/lib/p2h/p2hEngine";
+import type { FleetCategory, FleetType, P2HChecklist } from "../src/types/database";
 
 function daysFromNow(offset: number) {
   const d = new Date();
   d.setDate(d.getDate() + offset);
   return d.toISOString();
+}
+
+/** Bandingkan tanggal kedaluwarsa (offset hari dari sekarang) terhadap tanggal
+ * entri P2H (juga offset hari dari sekarang, negatif = masa lalu) — supaya
+ * status valid/expired tiap entri riwayat konsisten dengan tanggal aslinya,
+ * bukan cuma dihardcode true/false. */
+function wasValidAt(expiryOffsetDays: number, entryDaysAgo: number) {
+  return expiryOffsetDays >= -entryDaysAgo;
+}
+
+interface P2HHistoryEntry {
+  daysAgo: number;
+  checklist: P2HChecklist;
 }
 
 interface FleetSeed {
@@ -31,6 +45,8 @@ interface FleetSeed {
   simExpiryOffsetDays: number;
   // sample telemetri dari lama -> baru; entri terakhir jadi status/risk_score kendaraan.
   telemetrySeries: (DaratSample | AlatBeratSample)[];
+  // riwayat P2H dari lama -> baru; simValid/unitValid dihitung dari tanggal asli, bukan dihardcode.
+  p2hHistory: P2HHistoryEntry[];
 }
 
 const FLEET_SEED: FleetSeed[] = [
@@ -47,11 +63,16 @@ const FLEET_SEED: FleetSeed[] = [
     checklistTitle: "BOCOR OLI HOIST SILINDER • BRAKE ACCUMULATOR 4.1 BAR",
     checklistNote: "Tekanan rem darurat di bawah ambang aman.",
     operatorName: "Ahmad Dahlan",
-    simExpiryOffsetDays: -20,
+    simExpiryOffsetDays: -8,
     telemetrySeries: [
       { category: "alat_berat", continuousDrivingMinutes: 90, kemiringanArea: 3, bebanAngkatPercent: 70, getaranLevel: "normal", suhuKomponen: 55, operatorDocValid: true, unitDocValid: true },
       { category: "alat_berat", continuousDrivingMinutes: 200, kemiringanArea: 10, bebanAngkatPercent: 95, getaranLevel: "sedang", suhuKomponen: 80, operatorDocValid: true, unitDocValid: true },
       { category: "alat_berat", continuousDrivingMinutes: 300, kemiringanArea: 20, bebanAngkatPercent: 125, getaranLevel: "tinggi", suhuKomponen: 95, operatorDocValid: true, unitDocValid: true },
+    ],
+    p2hHistory: [
+      { daysAgo: 20, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 14, checklist: { rem: "minor", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 2, checklist: { rem: "rusak", ban: "ok", lampu: "ok", klakson: "ok" } },
     ],
   },
   {
@@ -67,11 +88,15 @@ const FLEET_SEED: FleetSeed[] = [
     checklistTitle: "REM KAKI BLONG • MINYAK REM BOCOR • LAMPU REM MATI",
     checklistNote: "Pedal rem amblas ke lantai kabin.",
     operatorName: "Ahmad Supardi",
-    simExpiryOffsetDays: -12,
+    simExpiryOffsetDays: 180,
     telemetrySeries: [
       { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 100, odolIndicator: false, muatanPercent: 80, operatorDocValid: true, unitDocValid: true },
       { category: "darat", speedKmh: 90, hardBrakingCount: 2, weather: "hujan", continuousDrivingMinutes: 200, odolIndicator: false, muatanPercent: 105, operatorDocValid: true, unitDocValid: false },
       { category: "darat", speedKmh: 110, hardBrakingCount: 3, weather: "hujan", continuousDrivingMinutes: 300, odolIndicator: false, muatanPercent: 90, operatorDocValid: true, unitDocValid: false },
+    ],
+    p2hHistory: [
+      { daysAgo: 15, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 2, checklist: { rem: "rusak", ban: "ok", lampu: "rusak", klakson: "ok" } },
     ],
   },
   {
@@ -93,6 +118,10 @@ const FLEET_SEED: FleetSeed[] = [
       { category: "alat_berat", continuousDrivingMinutes: 180, kemiringanArea: 8, bebanAngkatPercent: 90, getaranLevel: "sedang", suhuKomponen: 85, operatorDocValid: true, unitDocValid: true },
       { category: "alat_berat", continuousDrivingMinutes: 150, kemiringanArea: 8, bebanAngkatPercent: 90, getaranLevel: "sedang", suhuKomponen: 98, operatorDocValid: true, unitDocValid: true },
     ],
+    p2hHistory: [
+      { daysAgo: 10, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 3, checklist: { rem: "ok", ban: "minor", lampu: "ok", klakson: "ok" } },
+    ],
   },
   {
     unitCode: "BUS-024",
@@ -112,6 +141,10 @@ const FLEET_SEED: FleetSeed[] = [
       { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, muatanPercent: 85, operatorDocValid: true, unitDocValid: true },
       { category: "darat", speedKmh: 78, hardBrakingCount: 1, weather: "hujan", continuousDrivingMinutes: 150, odolIndicator: false, muatanPercent: 98, operatorDocValid: true, unitDocValid: true },
       { category: "darat", speedKmh: 85, hardBrakingCount: 1, weather: "hujan", continuousDrivingMinutes: 150, odolIndicator: false, muatanPercent: 95, operatorDocValid: true, unitDocValid: true },
+    ],
+    p2hHistory: [
+      { daysAgo: 9, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 2, checklist: { rem: "ok", ban: "minor", lampu: "ok", klakson: "minor" } },
     ],
   },
   {
@@ -133,6 +166,10 @@ const FLEET_SEED: FleetSeed[] = [
       { category: "alat_berat", continuousDrivingMinutes: 75, kemiringanArea: 3, bebanAngkatPercent: 68, getaranLevel: "normal", suhuKomponen: 52, operatorDocValid: true, unitDocValid: true },
       { category: "alat_berat", continuousDrivingMinutes: 80, kemiringanArea: 3, bebanAngkatPercent: 70, getaranLevel: "normal", suhuKomponen: 55, operatorDocValid: true, unitDocValid: true },
     ],
+    p2hHistory: [
+      { daysAgo: 10, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 1, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+    ],
   },
   {
     unitCode: "BUS-089",
@@ -152,6 +189,10 @@ const FLEET_SEED: FleetSeed[] = [
       { category: "darat", speedKmh: 50, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 90, odolIndicator: false, muatanPercent: 85, operatorDocValid: true, unitDocValid: true },
       { category: "darat", speedKmh: 52, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 95, odolIndicator: false, muatanPercent: 88, operatorDocValid: true, unitDocValid: true },
       { category: "darat", speedKmh: 55, hardBrakingCount: 0, weather: "cerah", continuousDrivingMinutes: 100, odolIndicator: false, muatanPercent: 90, operatorDocValid: true, unitDocValid: true },
+    ],
+    p2hHistory: [
+      { daysAgo: 10, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
+      { daysAgo: 1, checklist: { rem: "ok", ban: "ok", lampu: "ok", klakson: "ok" } },
     ],
   },
 ];
@@ -193,19 +234,25 @@ async function main() {
       throw vehicleError ?? new Error(`Gagal upsert ${unit.unitCode}`);
     }
 
-    await supabase.from("drivers").upsert(
-      {
-        full_name: unit.operatorName,
-        sim_number: `SIM-${unit.unitCode}`,
-        sim_expiry: daysFromNow(unit.simExpiryOffsetDays).slice(0, 10),
-        vehicle_id: vehicle.id,
-      },
-      { onConflict: "sim_number" }
-    );
+    const { data: driver } = await supabase
+      .from("drivers")
+      .upsert(
+        {
+          full_name: unit.operatorName,
+          sim_number: `SIM-${unit.unitCode}`,
+          sim_expiry: daysFromNow(unit.simExpiryOffsetDays).slice(0, 10),
+          vehicle_id: vehicle.id,
+        },
+        { onConflict: "sim_number" }
+      )
+      .select()
+      .single();
 
     // Reset riwayat lama vehicle ini biar seed idempotent (re-run gak numpuk duplikat).
     await supabase.from("telemetry_logs").delete().eq("vehicle_id", vehicle.id);
     await supabase.from("notifications").delete().eq("vehicle_id", vehicle.id);
+    await supabase.from("work_orders").delete().eq("vehicle_id", vehicle.id);
+    await supabase.from("p2h_records").delete().eq("vehicle_id", vehicle.id);
 
     const telemetryRows = unit.telemetrySeries.map((sample, i) => {
       const assessment = assessments[i];
@@ -240,6 +287,52 @@ async function main() {
         message: `${unit.legalitasTitle} — ${unit.checklistTitle}`,
         recommended_action: recommendedAction(latest.status),
       });
+    }
+
+    // Riwayat P2H — dihitung asli lewat validasiP2H() yang sama dipakai /api/p2h/submit.
+    // simValid/unitValid dihitung dari tanggal entri vs tanggal kedaluwarsa asli,
+    // bukan dihardcode, supaya konsisten dengan legalitas_title unit ini.
+    for (const entry of unit.p2hHistory) {
+      const simValid = wasValidAt(unit.simExpiryOffsetDays, entry.daysAgo);
+      const unitValid = wasValidAt(unit.kirExpiryOffsetDays, entry.daysAgo);
+      const result = validasiP2H(simValid, unitValid, entry.checklist);
+      const submittedAt = daysFromNow(-entry.daysAgo);
+
+      const { data: record } = await supabase
+        .from("p2h_records")
+        .insert({
+          vehicle_id: vehicle.id,
+          driver_id: driver?.id,
+          sim_valid: simValid,
+          unit_valid: unitValid,
+          checklist: entry.checklist,
+          final_status: result.status,
+          notes: result.alasan,
+          surat_jalan_id: result.suratJalanId,
+          submitted_at: submittedAt,
+        })
+        .select()
+        .single();
+
+      if (result.workOrder && record) {
+        await supabase.from("work_orders").insert({
+          vehicle_id: vehicle.id,
+          p2h_record_id: record.id,
+          problem_component: result.workOrder.komponen.join(", "),
+          deadline_hours: result.workOrder.deadlineHours,
+          created_at: submittedAt,
+        });
+      }
+
+      if (result.status === "merah") {
+        await supabase.from("notifications").insert({
+          vehicle_id: vehicle.id,
+          severity: "bahaya",
+          message: `${result.alasan}. ${result.aksi}.`,
+          recommended_action: "Hubungi Supervisor K3 segera — unit di-grounded sampai perbaikan/verifikasi ulang.",
+          created_at: submittedAt,
+        });
+      }
     }
 
     console.log(`[${index + 1}/${FLEET_SEED.length}] ${unit.unitCode} seeded — status ${latest.status}, skor ${latest.riskScore}.`);

@@ -73,9 +73,9 @@ export default function UnitIdentityCard({ vehicle }: { vehicle: Vehicle }) {
           {hash ?? "Menghitung..."}
         </p>
         <p className="text-right font-sans font-medium text-[#191c1e]">
-          Skor Risiko Saat Ini
+          Skor Kelaikan Saat Ini
           <br />
-          {vehicle.risk_score} / 100 ({vehicle.status.toUpperCase()})
+          {Math.round((100 - vehicle.risk_score) * 10) / 10} / 100 ({vehicle.status.toUpperCase()})
         </p>
       </div>
     </div>
