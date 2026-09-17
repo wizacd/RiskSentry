@@ -44,7 +44,7 @@ export default function LoginPage() {
         <div className="flex items-center gap-1 rounded-sm border border-[#c6c6cd] bg-[#f2f4f6] px-[9px] py-[5px]">
           <span className="size-[6px] rounded-full bg-[#065f46]" />
           <span className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">
-            K3 ESDM Certified Gateway
+            K3 Certified Gateway
           </span>
         </div>
       </header>
@@ -62,7 +62,7 @@ export default function LoginPage() {
               <div className="flex items-center gap-1">
                 <span className="size-2 rounded-full bg-[#065f46]" />
                 <span className="text-[11px] font-bold uppercase tracking-wide text-[#45464d]">
-                  Protokol Enkripsi Minerba TLS 1.3
+                  Protokol Enkripsi TLS 1.3
                 </span>
               </div>
               <span className="text-[11px] font-semibold tracking-wide text-[#45464d]">AUDIT LEVEL-4</span>
@@ -188,34 +188,8 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between rounded-sm bg-[#f2f4f6] p-3">
-              <div className="flex items-center gap-2">
-                <img src="/login/smart-card.svg" alt="" className="size-[18px]" />
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#191c1e]">
-                    Kartu Pintar Asesor / FIDO2
-                  </p>
-                  <p className="text-xs text-[#45464d]">Gunakan reader USB K3 Smart Card</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                disabled
-                title="Belum tersedia di mode demo"
-                className="cursor-not-allowed rounded-sm bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#191c1e] opacity-60 shadow-sm"
-              >
-                Tautkan Reader
-              </button>
-            </div>
-
             <div className="flex flex-col items-center pt-3">
-              <div className="flex items-center gap-1">
-                <img src="/login/shield-check-sm.svg" alt="" className="h-[14px] w-[15px]" />
-                <p className="text-center text-[11px] font-bold tracking-wide text-[#065f46]">
-                  Dilindungi Standar Keselamatan Angkutan Tambang &amp; Mineral SK Dirjen Minerba 2024
-                </p>
-              </div>
-              <p className="pt-1 text-center font-mono text-[11px] text-[#45464d]">
+              <p className="text-center font-mono text-[11px] text-[#45464d]">
                 RiskSentry Enterprise v4.2-RELEASE • Build 2024.11-SUCOFINDO-AUDIT
               </p>
             </div>
@@ -225,9 +199,9 @@ export default function LoginPage() {
 
       <footer className="flex items-center justify-between border-t border-[#e6e8ea] bg-[#f2f4f6] px-6 py-4 text-xs text-[#45464d]">
         <div className="flex items-center gap-3">
-          <span>© 2024 PT Sucofindo (Persero) - IDSurvey Holding. All rights reserved.</span>
+          <span>© 2026 PT Sucofindo (Persero) - IDSurvey Holding. All rights reserved.</span>
           <span className="text-[#c6c6cd]">•</span>
-          <span>Sistem Informasi Manajemen Keselamatan Operasional &amp; K3 ESDM</span>
+          <span>Sistem Informasi Manajemen Keselamatan Operasional &amp; K3</span>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
